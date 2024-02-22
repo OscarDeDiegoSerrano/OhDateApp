@@ -17,8 +17,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
-flutter:
   assets:
-    - assets/
+    - lib/imatges/LogoOhDate.png
 

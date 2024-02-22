@@ -28,7 +28,7 @@ class Registrarse extends StatelessWidget {
                   SizedBox(
                     height: 100,
                     child: Image.asset(
-                      'assets/LogoOhDate.png', // Ruta de la imagen.
+                      'lib/imatges/LogoOhDate.png', // Ruta de la imagen.
                       fit: BoxFit.contain,
                     ),
                   ),
