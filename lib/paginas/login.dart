@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(Registrarse());
+  runApp(IniciarSesion());
 }
 
-class Registrarse extends StatelessWidget {
+class IniciarSesion extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -59,7 +59,7 @@ class Registrarse extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Text(
-                            '¡Únete a nosotros!',
+                            'Inicio de sesión',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 20,
@@ -67,7 +67,7 @@ class Registrarse extends StatelessWidget {
                             textAlign: TextAlign.center,
                           ),
                           SizedBox(height: 20),
-                          RegisterForm(),
+                          LoginForm(),
                         ],
                       ),
                     ),
@@ -82,19 +82,14 @@ class Registrarse extends StatelessWidget {
   }
 }
 
-class RegisterForm extends StatefulWidget {
+class LoginForm extends StatefulWidget {
   @override
-  _RegisterFormState createState() => _RegisterFormState();
+  _LoginFormState createState() => _LoginFormState();
 }
 
-class _RegisterFormState extends State<RegisterForm> {
+class _LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
-  TextEditingController _nombreController = TextEditingController();
-  TextEditingController _apellidoController = TextEditingController();
   TextEditingController _usernameController = TextEditingController();
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _edadController = TextEditingController();
-  TextEditingController _telefonoController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
   @override
@@ -105,30 +100,6 @@ class _RegisterFormState extends State<RegisterForm> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           TextFormField(
-            controller: _nombreController,
-            decoration: InputDecoration(
-              labelText: 'Nombre',
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Por favor ingrese su nombre';
-              }
-              return null;
-            },
-          ),
-          TextFormField(
-            controller: _apellidoController,
-            decoration: InputDecoration(
-              labelText: 'Apellido',
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Por favor ingrese su apellido';
-              }
-              return null;
-            },
-          ),
-          TextFormField(
             controller: _usernameController,
             decoration: InputDecoration(
               labelText: 'Nombre de usuario',
@@ -136,42 +107,6 @@ class _RegisterFormState extends State<RegisterForm> {
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Por favor ingrese su nombre de usuario';
-              }
-              return null;
-            },
-          ),
-          TextFormField(
-            controller: _emailController,
-            decoration: InputDecoration(
-              labelText: 'Correo electrónico',
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Por favor ingrese su correo electrónico';
-              }
-              return null;
-            },
-          ),
-          TextFormField(
-            controller: _edadController,
-            decoration: InputDecoration(
-              labelText: 'Edad',
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Por favor ingrese su edad';
-              }
-              return null;
-            },
-          ),
-          TextFormField(
-            controller: _telefonoController,
-            decoration: InputDecoration(
-              labelText: 'Teléfono',
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Por favor ingrese su teléfono';
               }
               return null;
             },
@@ -194,11 +129,12 @@ class _RegisterFormState extends State<RegisterForm> {
             onPressed: () {
               if (_formKey.currentState!.validate()) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('¡Registro exitoso!')),
+                  SnackBar(content: Text('¡Inicio de sesión exitoso!')),
                 );
+                // Aquí puedes agregar la lógica para iniciar sesión
               }
             },
-            child: Text('Registrarse'),
+            child: Text('Iniciar Sesión'),
           ),
         ],
       ),
