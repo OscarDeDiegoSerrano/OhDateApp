@@ -15,12 +15,18 @@ class Registrarse extends StatelessWidget {
       home: Scaffold(
         body: Stack(
           children: [
+            // Fondo
             Positioned.fill(
               child: Container(
-                color: Colors.pink[50],
-                padding: EdgeInsets.all(20.0),
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage("lib/imatges/fondo.jpg"), // Ruta de la imagen de fondo
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
             ),
+            // Contenido central
             Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
