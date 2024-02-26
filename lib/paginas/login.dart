@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ohdate_app/paginas/cambiarpassword.dart';
 
 void main() {
   runApp(IniciarSesion());
@@ -91,7 +92,14 @@ class _LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
-
+  void hemCridatBoto() {
+    ElevatedButton(
+      onPressed: () {
+        Navigator.pushNamed(context, '/CambiarPassword');
+      },
+      child: Text('Ir a la página de cambiar contraseña'),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -136,6 +144,14 @@ class _LoginFormState extends State<LoginForm> {
             },
             child: Text('Iniciar Sesión'),
           ),
+          GestureDetector(
+              onTap: hemCridatBoto,
+              child: Container(
+                child: Text("Restablecer contraseña"),
+                color: Colors.amber,
+                padding: EdgeInsets.all(30),
+              ),
+            ),
         ],
       ),
     );

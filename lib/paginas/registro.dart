@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
 
 void main() {
   runApp(Registrarse());
@@ -68,6 +70,18 @@ class Registrarse extends StatelessWidget {
                           ),
                           SizedBox(height: 20),
                           RegisterForm(),
+                          SizedBox(height: 10), // Espacio entre el formulario y los botones
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  //Ayuda
+                                },
+                                child: Text('¿Ya tienes una cuenta?'),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -91,11 +105,11 @@ class _RegisterFormState extends State<RegisterForm> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController _nombreController = TextEditingController();
   TextEditingController _apellidoController = TextEditingController();
-  TextEditingController _usernameController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _edadController = TextEditingController();
   TextEditingController _telefonoController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  DateTime? _selectedDate;
 
   @override
   Widget build(BuildContext context) {
@@ -129,18 +143,6 @@ class _RegisterFormState extends State<RegisterForm> {
             },
           ),
           TextFormField(
-            controller: _usernameController,
-            decoration: InputDecoration(
-              labelText: 'Nombre de usuario',
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Por favor ingrese su nombre de usuario';
-              }
-              return null;
-            },
-          ),
-          TextFormField(
             controller: _emailController,
             decoration: InputDecoration(
               labelText: 'Correo electrónico',
@@ -155,13 +157,29 @@ class _RegisterFormState extends State<RegisterForm> {
           TextFormField(
             controller: _edadController,
             decoration: InputDecoration(
-              labelText: 'Edad',
+              labelText: 'Fecha de nacimiento', // Cambiar el texto del label si es necesario
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Por favor ingrese su edad';
+                return 'Por favor ingrese su fecha de nacimiento';
               }
               return null;
+            },
+            onTap: () async {
+              // Lógica para mostrar un selector de fecha
+              final DateTime? pickedDate = await showDatePicker(
+                context: context,
+                initialDate: _selectedDate ?? DateTime.now(),
+                firstDate: DateTime(1900),
+                lastDate: DateTime.now(),
+              );
+
+              if (pickedDate != null) {
+                setState(() {
+                  _selectedDate = pickedDate;
+                  _edadController.text = DateFormat('dd/MM/yyyy').format(pickedDate);
+                });
+              }
             },
           ),
           TextFormField(
