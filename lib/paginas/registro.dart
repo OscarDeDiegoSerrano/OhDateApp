@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:ohdate_app/paginas/login.dart'; // Asegúrate de que la ruta de importación sea correcta
 
 
-void main() {
-  runApp(Registrarse());
-}
+void main() => runApp(MaterialApp(
+      title: "App",
+      home: Registrarse(),
+      theme: ThemeData(
+        primaryColor: Colors.pink[100],
+        scaffoldBackgroundColor: Colors.pink[100],
+    )));
 
 class Registrarse extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        primaryColor: Colors.pink[100],
-        scaffoldBackgroundColor: Colors.pink[100],
-      ),
-      home: Scaffold(
+    return Scaffold(
         body: Stack(
           children: [
             // Fondo
@@ -76,7 +76,15 @@ class Registrarse extends StatelessWidget {
                             children: [
                               ElevatedButton(
                                 onPressed: () {
-                                  //Ayuda
+                                  // Aquí deberías implementar la lógica de registro
+                                },
+                                child: Text('Registrarse'),
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                //right way: use context in below level tree with MaterialApp
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) => IniciarSesion()));
                                 },
                                 child: Text('¿Ya tienes una cuenta?'),
                               ),
@@ -91,8 +99,7 @@ class Registrarse extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 }
 
@@ -109,6 +116,8 @@ class _RegisterFormState extends State<RegisterForm> {
   TextEditingController _edadController = TextEditingController();
   TextEditingController _telefonoController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  TextEditingController _sexController = TextEditingController();
+  String? _selectedSex;
   DateTime? _selectedDate;
 
   @override
@@ -163,6 +172,13 @@ class _RegisterFormState extends State<RegisterForm> {
               if (value == null || value.isEmpty) {
                 return 'Por favor ingrese su fecha de nacimiento';
               }
+              // Validar que la fecha de nacimiento sea mayor a 18 años
+              final DateTime selectedDate = DateFormat('dd/MM/yyyy').parse(value);
+              final DateTime currentDate = DateTime.now();
+              final DateTime minDate = DateTime(currentDate.year - 18, currentDate.month, currentDate.day);
+              if (selectedDate.isAfter(minDate)) {
+                return 'Debe ser mayor de 18 años';
+              }
               return null;
             },
             onTap: () async {
@@ -207,17 +223,31 @@ class _RegisterFormState extends State<RegisterForm> {
               return null;
             },
           ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              if (_formKey.currentState!.validate()) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('¡Registro exitoso!')),
-                );
-              }
+          DropdownButtonFormField<String>(
+            value: _selectedSex,
+            onChanged: (newValue) {
+              setState(() {
+                _selectedSex = newValue;
+              });
             },
-            child: Text('Registrarse'),
+            decoration: InputDecoration(
+              labelText: 'Sexo',
+            ),
+            items: <String>['Hombre', 'Mujer', 'No quiero especificar']
+                .map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Por favor seleccione su orientación sexual';
+              }
+              return null;
+            },
           ),
+          SizedBox(height: 20),
         ],
       ),
     );
