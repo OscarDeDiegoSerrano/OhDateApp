@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Importa cloud_firestore
 import 'package:ohdate_app/paginas/inicio.dart';
-import 'package:ohdate_app/paginas/login.dart';
+import 'package:ohdate_app/paginas/login.dart'; // Asegúrate de que la ruta de importación sea correcta
+
 
 void main() => runApp(MaterialApp(
       title: "App",
@@ -77,7 +77,6 @@ class Registrarse extends StatelessWidget {
                             children: [
                               ElevatedButton(
                                 onPressed: () {
-                                  guardarDatos(); // Llama a la función para guardar datos
                                   Navigator.of(context).push(MaterialPageRoute(builder: (context) => PaginaInicio()));
                                 },
                                 child: Text('Registrarse'),
@@ -255,31 +254,3 @@ class _RegisterFormState extends State<RegisterForm> {
     );
   }
 }
-
-void guardarDatos() async {
-  // Obtener los valores de los controladores
-  String nombre = _nombreController.text;
-  String apellido = _apellidoController.text;
-  String email = _emailController.text;
-  String fechaNacimiento = _edadController.text;
-  String telefono = _telefonoController.text;
-  String password = _passwordController.text;
-  String sexo = _selectedSex ?? '';
-
-  try {
-    // Guardar los datos en Firebase Firestore
-    await FirebaseFirestore.instance.collection('usuarios').add({
-      'nombre': nombre,
-      'apellido': apellido,
-      'email': email,
-      'fechaNacimiento': fechaNacimiento,
-      'telefono': telefono,
-      'password': password,
-      'sexo': sexo,
-    });
-    print('Datos guardados correctamente.');
-  } catch (e) {
-    print('Error al guardar los datos: $e');
-  }
-}
-

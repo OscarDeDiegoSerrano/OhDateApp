@@ -15,6 +15,7 @@ class CambiarPassword extends StatelessWidget {
           title: Text('Cambiar Contraseña'),
         ),
         body: Center(
+          
           child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
