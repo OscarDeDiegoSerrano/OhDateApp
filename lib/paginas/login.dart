@@ -106,7 +106,7 @@ class _LoginFormState extends State<LoginForm> {
           TextFormField(
             controller: _usernameController,
             decoration: InputDecoration(
-              labelText: 'Nombre de usuario',
+              labelText: 'Correo electrónico',
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
