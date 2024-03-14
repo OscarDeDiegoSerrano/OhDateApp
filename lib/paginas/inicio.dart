@@ -55,13 +55,14 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
 
   void swipeLeft() {
     setState(() {
-      currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
+      currentPhotoIndex = (currentPhotoIndex + 20) % photos.length;
     });
   }
 
   void swipeRight() {
     setState(() {
-      currentPhotoIndex = (currentPhotoIndex - 1) % photos.length;
+      
+      currentPhotoIndex = (currentPhotoIndex - 20) % photos.length;
     });
   }
 

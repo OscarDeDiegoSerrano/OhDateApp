@@ -1,3 +1,4 @@
+import 'package:dob_input_field/dob_input_field.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ohdate_app/paginas/inicio.dart';
@@ -164,41 +165,25 @@ class _RegisterFormState extends State<RegisterForm> {
               return null;
             },
           ),
-          TextFormField(
-            controller: _edadController,
-            decoration: InputDecoration(
-              labelText: 'Fecha de nacimiento', // Cambiar el texto del label si es necesario
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Por favor ingrese su fecha de nacimiento';
-              }
-              // Validar que la fecha de nacimiento sea mayor a 18 años
-              final DateTime selectedDate = DateFormat('dd/MM/yyyy').parse(value);
-              final DateTime currentDate = DateTime.now();
-              final DateTime minDate = DateTime(currentDate.year - 18, currentDate.month, currentDate.day);
-              if (selectedDate.isAfter(minDate)) {
-                return 'Debe ser mayor de 18 años';
-              }
-              return null;
-            },
-            onTap: () async {
-              // Lógica para mostrar un selector de fecha
-              final DateTime? pickedDate = await showDatePicker(
-                context: context,
-                initialDate: _selectedDate ?? DateTime.now(),
-                firstDate: DateTime(1900),
-                lastDate: DateTime.now(),
+          Center(
+   child: ElevatedButton(
+     child: const Text('Tap'),
+       onPressed: () {
+         showDatePicker(
+            context: context,
+            locale: const Locale("fr", "FR"),
+            initialDate: DateTime.now(),
+            firstDate: DateTime(2018),
+            lastDate: DateTime(2030),
+            builder: (BuildContext context, Widget? child) {
+              return Theme(
+                data: ThemeData.dark(),
+                child: child!,
               );
-
-              if (pickedDate != null) {
-                setState(() {
-                  _selectedDate = pickedDate;
-                  _edadController.text = DateFormat('dd/MM/yyyy').format(pickedDate);
-                });
-              }
-            },
-          ),
+            });
+      },
+    )
+ )    ,
           TextFormField(
             controller: _telefonoController,
             decoration: InputDecoration(

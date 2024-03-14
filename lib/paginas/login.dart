@@ -92,7 +92,7 @@ class _LoginFormState extends State<LoginForm> {
   void hemCridatBoto() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => CambiarPassword()),
+      MaterialPageRoute(builder: (context) => RestablecerContrasena()),
     );
   }
 
