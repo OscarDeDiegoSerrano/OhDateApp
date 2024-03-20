@@ -171,7 +171,7 @@ class _RegisterFormState extends State<RegisterForm> {
        onPressed: () {
          showDatePicker(
             context: context,
-            locale: const Locale("fr", "FR"),
+            locale: const Locale("sp", "SP"),
             initialDate: DateTime.now(),
             firstDate: DateTime(2018),
             lastDate: DateTime(2030),
