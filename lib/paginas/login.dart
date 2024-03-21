@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ohdate_app/paginas/cambiarpassword.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class IniciarSesion extends StatelessWidget {
   @override
@@ -17,13 +18,12 @@ class IniciarSesion extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage("lib/imatges/fondo.jpg"), // Ruta de la imagen de fondo
+                    image: AssetImage("lib/imatges/fondo.jpg"),
                     fit: BoxFit.cover,
                   ),
                 ),
               ),
             ),
-            // Contenido central
             Center(
               child: SingleChildScrollView(
                 child: Column(
@@ -32,7 +32,7 @@ class IniciarSesion extends StatelessWidget {
                     SizedBox(
                       height: 100,
                       child: Image.asset(
-                        'lib/imatges/LogoOhDate.png', // Ruta de la imagen.
+                        'lib/imatges/LogoOhDate.png',
                         fit: BoxFit.contain,
                       ),
                     ),
@@ -48,7 +48,7 @@ class IniciarSesion extends StatelessWidget {
                             color: Colors.black.withOpacity(0.3),
                             spreadRadius: 3,
                             blurRadius: 7,
-                            offset: Offset(0, 3), // changes position of shadow
+                            offset: Offset(0, 3),
                           ),
                         ],
                       ),
@@ -88,6 +88,7 @@ class _LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   void hemCridatBoto() {
     Navigator.push(
@@ -95,6 +96,25 @@ class _LoginFormState extends State<LoginForm> {
       MaterialPageRoute(builder: (context) => RestablecerContrasena()),
     );
   }
+
+  Future<String?> signIn(String email, String password) async {
+    try {
+      // Inicio de sesión con Firebase Authentication
+      await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      return null; // Inicio de sesión exitoso
+    } catch (e) {
+      if (e is FirebaseAuthException) {
+        return e.message; // Devuelve el mensaje de error de Firebase Authentication
+      } else {
+        return 'Error desconocido'; // Manejar otros posibles errores
+      }
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -130,12 +150,22 @@ class _LoginFormState extends State<LoginForm> {
           ),
           SizedBox(height: 20),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               if (_formKey.currentState!.validate()) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('¡Inicio de sesión exitoso!')),
+                String? result = await signIn(
+                  _usernameController.text,
+                  _passwordController.text,
                 );
-                // Aquí puedes agregar la lógica para iniciar sesión
+                if (result == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('¡Inicio de sesión exitoso!')),
+                  );
+                  // Aquí puedes navegar a la página de inicio u otro lugar
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: $result')),
+                  );
+                }
               }
             },
             child: Text('Iniciar Sesión'),

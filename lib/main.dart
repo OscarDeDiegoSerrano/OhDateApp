@@ -1,32 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:ohdate_app/paginas/registro.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ohdate_app/paginas/login.dart';
 import 'package:ohdate_app/paginas/cambiarpassword.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:ohdate_app/paginas/registro.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MainApp());
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+  const MainApp({Key? key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       localizationsDelegates: const [
-         GlobalMaterialLocalizations.delegate
-       ],
-       supportedLocales: [
-         Locale('en'),
-         Locale('sp'),
-       ],
+        GlobalMaterialLocalizations.delegate
+      ],
+      supportedLocales: [
+        Locale('en'),
+        Locale('sp'),
+      ],
       // Define las rutas
       routes: {
         '/': (context) => Registrarse(),
-        '/cambiarContrasena': (context0) => RestablecerContrasena(),
+        '/cambiarContrasena': (context) => RestablecerContrasena(),
       },
       initialRoute: '/', // La ruta inicial es Registrarse
     );
   }
 }
-

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class RestablecerContrasena extends StatelessWidget {
@@ -98,20 +99,34 @@ class _RestablecerContrasenaFormState extends State<RestablecerContrasenaForm> {
           ),
           SizedBox(height: 20),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               if (_formKey.currentState!.validate()) {
-                // Aquí deberías implementar la lógica para enviar el correo con el código para restablecer la contraseña
-                enviarCorreo(_emailController.text);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                        'Se ha enviado un correo electrónico con instrucciones para restablecer la contraseña.'),
-                  ),
-                );
+                try {
+                  await FirebaseAuth.instance.sendPasswordResetEmail(
+                    email: _emailController.text,
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Se ha enviado un correo electrónico con instrucciones para restablecer la contraseña.',
+                      ),
+                    ),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Ocurrió un error al enviar el correo electrónico. Por favor, inténtelo de nuevo más tarde.',
+                      ),
+                    ),
+                  );
+                  print('Error: $e');
+                }
               }
             },
             child: Text('Enviar Código'),
           ),
+
         ],
       ),
     );
