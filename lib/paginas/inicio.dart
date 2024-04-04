@@ -1,9 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:ohdate_app/paginas/login.dart';
 
 class PaginaInicio extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        actions: [
+          // Icono de perfil que abre el menú desplegable
+          PopupMenuButton(
+            itemBuilder: (BuildContext context) {
+              return [
+                PopupMenuItem(
+                  child: Text('Hola, [Nombre de Usuario]'), // Puedes colocar el nombre de usuario aquí
+                  enabled: false,
+                ),
+                PopupMenuItem(
+                  child: ListTile(
+                    leading: Icon(Icons.person), // Icono de perfil
+                    title: Text('Perfil'),
+                    onTap: () {
+                      // Acción al seleccionar "Perfil"
+                      // Puedes redirigir a la página de perfil aquí
+                    },
+                  ),
+                ),
+                PopupMenuItem(
+                  child: ListTile(
+                    leading: Icon(Icons.logout), // Icono de cerrar sesión
+                    title: Text('Cerrar Sesión'),
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => IniciarSesion()),
+                      );
+                    },
+                  ),
+                ),
+              ];
+            },
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Expanded(
@@ -96,7 +135,7 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
       child: Container(
         margin: EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
+          border: Border.all(color: Color.fromARGB(255, 228, 139, 194)),
           borderRadius: BorderRadius.circular(10.0),
         ),
         child: ClipRRect(
@@ -110,5 +149,3 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
     );
   }
 }
-
-
