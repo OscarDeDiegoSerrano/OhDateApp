@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ohdate_app/paginas/login.dart';
-import 'package:ohdate_app/paginas/cambiarpassword.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:ohdate_app/firebase_options.dart';
+import 'package:ohdate_app/paginas/cambiarpassword.dart';
 import 'package:ohdate_app/paginas/registro.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  
   runApp(const MainApp());
 }
 
@@ -18,12 +21,15 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: [
-        Locale('en'),
-        Locale('sp'),
+        const Locale('en', ''), // English
+        const Locale('es', ''), // Spanish
       ],
       // Define las rutas
       routes: {
@@ -34,3 +40,4 @@ class MainApp extends StatelessWidget {
     );
   }
 }
+

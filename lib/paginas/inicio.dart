@@ -1,17 +1,25 @@
 import 'package:flutter/material.dart';
 
-
 class PaginaInicio extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('OhDate'),
-      ),
       body: Column(
         children: [
           Expanded(
-            child: SwipeCardPage(),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                SwipeCardPage(),
+                Positioned(
+                  top: 10.0,
+                  child: Image.asset(
+                    'lib/imatges/LogoOhDate.png',
+                    width: 60.0,
+                  ),
+                ),
+              ],
+            ),
           ),
           BottomAppBar(
             child: Row(
@@ -50,19 +58,22 @@ class SwipeCardPage extends StatefulWidget {
 }
 
 class _SwipeCardPageState extends State<SwipeCardPage> {
-  List<String> photos = ['foto1', 'foto2', 'foto3']; // Tus fotos aquí
+  List<String> photos = [
+    'lib/imatges/imagen1.jpg',
+    'lib/imatges/imagen2.jpg',
+    'lib/imatges/imagen3.jpg'
+  ];
   int currentPhotoIndex = 0;
 
   void swipeLeft() {
     setState(() {
-      currentPhotoIndex = (currentPhotoIndex + 20) % photos.length;
+      currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
     });
   }
 
   void swipeRight() {
     setState(() {
-      
-      currentPhotoIndex = (currentPhotoIndex - 20) % photos.length;
+      currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
     });
   }
 
@@ -70,10 +81,16 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onPanUpdate: (details) {
-        if (details.delta.dx > 0) {
-          swipeRight();
-        } else if (details.delta.dx < 0) {
-          swipeLeft();
+        // Define una sensibilidad personalizada para el swipe
+        final sensitivity = 20.0; 
+
+        // Si el cambio en la coordenada X es mayor que la sensibilidad definida
+        if (details.delta.dx.abs() > sensitivity) {
+          if (details.delta.dx > 0) {
+            swipeRight();
+          } else if (details.delta.dx < 0) {
+            swipeLeft();
+          }
         }
       },
       child: Container(
@@ -85,7 +102,7 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(10.0),
           child: Image.asset(
-            'assets/${photos[currentPhotoIndex]}.jpg', // Ajusta la ruta de la imagen según tu estructura de archivos
+            '${photos[currentPhotoIndex]}',
             fit: BoxFit.cover,
           ),
         ),
@@ -93,3 +110,5 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
     );
   }
 }
+
+
