@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ohdate_app/paginas/cambiarpassword.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:ohdate_app/paginas/inicio.dart';
 
 class IniciarSesion extends StatelessWidget {
   @override
@@ -160,7 +161,10 @@ class _LoginFormState extends State<LoginForm> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('¡Inicio de sesión exitoso!')),
                   );
-                  // Aquí puedes navegar a la página de inicio u otro lugar
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PaginaInicio()),
+                  );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Error: $result')),

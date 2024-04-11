@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ohdate_app/auth/servicio_autentificacion.dart';
 import 'package:ohdate_app/paginas/inicio.dart';
 import 'package:ohdate_app/paginas/login.dart';
 
@@ -71,6 +72,17 @@ class Registrarse extends StatelessWidget {
                         ),
                         ElevatedButton(
                           onPressed: () async {
+
+                            print(RegisterForm().emailController.text);
+
+                            ServicioAutenticacion().registrarUsuario(
+                              RegisterForm().emailController.text,
+                              RegisterForm().passwordController.text,
+                              RegisterForm().nombreController.text,
+                              RegisterForm().apellidoController.text,
+                              RegisterForm().telefonoController.text,
+                            );
+
                             Navigator.of(context).push(MaterialPageRoute(builder: (context) => PaginaInicio()));
                           },
                           child: Text('Registrarse'),
@@ -89,18 +101,21 @@ class Registrarse extends StatelessWidget {
 }
 
 class RegisterForm extends StatefulWidget {
+
+  TextEditingController nombreController = TextEditingController();
+  TextEditingController apellidoController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController telefonoController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
   @override
   _RegisterFormState createState() => _RegisterFormState();
 }
 
 class _RegisterFormState extends State<RegisterForm> {
   final _formKey = GlobalKey<FormState>();
-  TextEditingController _nombreController = TextEditingController();
-  TextEditingController _apellidoController = TextEditingController();
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _telefonoController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
-  String? _selectedSex;
+  
+  /*String? selectedSex;*/
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +125,7 @@ class _RegisterFormState extends State<RegisterForm> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           TextFormField(
-            controller: _nombreController,
+            controller: widget.nombreController,
             decoration: InputDecoration(
               labelText: 'Nombre',
             ),
@@ -122,7 +137,7 @@ class _RegisterFormState extends State<RegisterForm> {
             },
           ),
           TextFormField(
-            controller: _apellidoController,
+            controller: widget.apellidoController,
             decoration: InputDecoration(
               labelText: 'Apellido',
             ),
@@ -134,7 +149,7 @@ class _RegisterFormState extends State<RegisterForm> {
             },
           ),
           TextFormField(
-            controller: _emailController,
+            controller: widget.emailController,
             decoration: InputDecoration(
               labelText: 'Correo electrónico',
             ),
@@ -146,7 +161,7 @@ class _RegisterFormState extends State<RegisterForm> {
             },
           ),
           TextFormField(
-            controller: _telefonoController,
+            controller: widget.telefonoController,
             decoration: InputDecoration(
               labelText: 'Teléfono',
             ),
@@ -158,7 +173,7 @@ class _RegisterFormState extends State<RegisterForm> {
             },
           ),
           TextFormField(
-            controller: _passwordController,
+            controller: widget.passwordController,
             decoration: InputDecoration(
               labelText: 'Contraseña',
             ),
@@ -170,11 +185,12 @@ class _RegisterFormState extends State<RegisterForm> {
               return null;
             },
           ),
-          DropdownButtonFormField<String>(
-            value: _selectedSex,
+          /*DropdownButtonFormField<String>(
+            value: selectedSex,
             onChanged: (newValue) {
+              
               setState(() {
-                _selectedSex = newValue;
+                selectedSex = newValue;
               });
             },
             decoration: InputDecoration(
@@ -193,7 +209,7 @@ class _RegisterFormState extends State<RegisterForm> {
               }
               return null;
             },
-          ),
+          ),*/
           SizedBox(height: 20),
         ],
       ),

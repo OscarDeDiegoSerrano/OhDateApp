@@ -5,7 +5,7 @@ class ServicioAutenticacion {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<String?> registrarUsuario(String email, String password, String nombre, String apellido, String telefono, String sexo) async {
+  Future<String?> registrarUsuario(String email, String password, String nombre, String apellido, String telefono,/* String sexo*/) async {
     try {
       // Registro de usuario en Firebase Authentication
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
@@ -13,12 +13,13 @@ class ServicioAutenticacion {
         password: password,
       );
 
+      print("guardar dades");
       // Guardar datos adicionales en Firestore
       await _firestore.collection('usuarios').doc(userCredential.user!.uid).set({
         'nombre': nombre,
         'apellido': apellido,
         'telefono': telefono,
-        'sexo': sexo,
+        /*'sexo': sexo,*/
       });
 
       return null; // Registro exitoso
