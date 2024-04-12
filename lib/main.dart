@@ -16,7 +16,7 @@ void main() async {
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({Key? key});
+  const MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -27,14 +27,14 @@ class MainApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: [
-        const Locale('en', ''), // English
-        const Locale('es', ''), // Spanish
+      supportedLocales: const [
+        Locale('en', ''), // English
+        Locale('es', ''), // Spanish
       ],
       // Define las rutas
       routes: {
-        '/': (context) => Registrarse(),
-        '/cambiarContrasena': (context) => RestablecerContrasena(),
+        '/': (context) => RegisterForm(),
+        '/cambiarContrasena': (context) => const RestablecerContrasena(),
       },
       initialRoute: '/', // La ruta inicial es Registrarse
     );

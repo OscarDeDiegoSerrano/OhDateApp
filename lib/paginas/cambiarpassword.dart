@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class RestablecerContrasena extends StatelessWidget {
-  const RestablecerContrasena({Key? key});
+  const RestablecerContrasena({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +13,7 @@ class RestablecerContrasena extends StatelessWidget {
       ),
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Restablecer Contraseña'),
+          title: const Text('Restablecer Contraseña'),
         ),
         body: Center(
           child: SingleChildScrollView(

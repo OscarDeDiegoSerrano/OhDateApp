@@ -13,9 +13,10 @@ class ServicioAutenticacion {
         password: password,
       );
 
-      print("guardar dades");
       // Guardar datos adicionales en Firestore
       await _firestore.collection('usuarios').doc(userCredential.user!.uid).set({
+        'email':email,
+        'password':password,
         'nombre': nombre,
         'apellido': apellido,
         'telefono': telefono,
