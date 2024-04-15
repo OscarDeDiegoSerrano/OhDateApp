@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "66605947614",
+    "project_id": "ohdate-428ef",
+    "storage_bucket": "ohdate-428ef.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:66605947614:android:f4bb6629fa216acb97004f",
+        "android_client_info": {
+          "package_name": "com.example.ohdate_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSHAIjXGIcUBp775jYaCH-zyYt1Dz21Og"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
