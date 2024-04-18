@@ -142,13 +142,6 @@ class ModificarDatosUsuario extends StatelessWidget {
                           child: Text('Aplicar'),
                         ),
                         SizedBox(height: 10),
-                        ElevatedButton(
-                          onPressed: () {
-                            // Implementar la navegación a la pantalla de preferencias de búsqueda aquí
-                            // Navigator.push(context, MaterialPageRoute(builder: (context) => SearchPreferencesPage()));
-                          },
-                          child: Text('Preferencias de búsqueda'),
-                        ),
                       ],
                     ),
                   ),

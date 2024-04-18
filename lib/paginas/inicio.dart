@@ -1,7 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ohdate_app/auth/servicio_autentificacion.dart';
 import 'package:ohdate_app/paginas/ModificarDatosUsuario.dart';
 import 'package:ohdate_app/paginas/login.dart';
+import 'package:ohdate_app/paginas/pantalla_ChatsMatch.dart';
+import 'package:ohdate_app/paginas/pantalla_chat.dart';
 
 class PaginaInicio extends StatefulWidget {
   @override
@@ -9,26 +13,11 @@ class PaginaInicio extends StatefulWidget {
 }
 
 class _PaginaInicioState extends State<PaginaInicio> {
-  String nombre = '';
-  /*final String idUsuariActual = _auth.currentUser!.uid;*/
-
-  @override
-  void initState() {
-    super.initState();
-    obtenerNombreUsuario();
-  }
-
-  Future<void> obtenerNombreUsuario() async {
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-    DocumentSnapshot usuarioSnapshot =
-        await firestore.collection('usuarios').doc('usuario_id').get();
-    setState(() {
-      nombre = usuarioSnapshot['nombre'];
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
+    User? usuarioActual = ServicioAutenticacion.getUsuariActual();
+    String nombre = usuarioActual?.displayName ?? 'Invitado';
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -94,8 +83,11 @@ class _PaginaInicioState extends State<PaginaInicio> {
                 IconButton(
                   icon: Icon(Icons.chat),
                   onPressed: () {
-                    // Acción al presionar el botón de chats
-                  },
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PantallaChatsMatch()),
+              );
+            },
                 ),
                 IconButton(
                   icon: Icon(Icons.home),
