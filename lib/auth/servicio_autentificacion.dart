@@ -42,4 +42,8 @@ class ServicioAutenticacion {
       return e.toString(); // Error durante el inicio de sesión
     }
   }
+
+  User? getUsuariActual() {
+    return _auth.currentUser;
+  }
 }
