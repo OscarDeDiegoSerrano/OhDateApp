@@ -10,6 +10,7 @@ class PaginaInicio extends StatefulWidget {
 
 class _PaginaInicioState extends State<PaginaInicio> {
   String nombre = '';
+  /*final String idUsuariActual = _auth.currentUser!.uid;*/
 
   @override
   void initState() {
@@ -20,7 +21,7 @@ class _PaginaInicioState extends State<PaginaInicio> {
   Future<void> obtenerNombreUsuario() async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     DocumentSnapshot usuarioSnapshot =
-        await firestore.collection('usuarios').doc('usuario_id').get(); // Asegúrate de reemplazar 'usuario_id' con el ID correcto del usuario
+        await firestore.collection('usuarios').doc('usuario_id').get();
     setState(() {
       nombre = usuarioSnapshot['nombre'];
     });
