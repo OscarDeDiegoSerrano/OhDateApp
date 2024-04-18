@@ -1,24 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ohdate_app/paginas/login.dart';
 
-class PaginaInicio extends StatelessWidget {
+class PaginaInicio extends StatefulWidget {
+  @override
+  _PaginaInicioState createState() => _PaginaInicioState();
+}
+
+class _PaginaInicioState extends State<PaginaInicio> {
+  String nombre = '';
+
+  @override
+  void initState() {
+    super.initState();
+    obtenerNombreUsuario();
+  }
+
+  Future<void> obtenerNombreUsuario() async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    DocumentSnapshot usuarioSnapshot =
+        await firestore.collection('usuarios').doc('usuario_id').get(); // Asegúrate de reemplazar 'usuario_id' con el ID correcto del usuario
+    setState(() {
+      nombre = usuarioSnapshot['nombre'];
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         actions: [
-          // Icono de perfil que abre el menú desplegable
           PopupMenuButton(
             itemBuilder: (BuildContext context) {
               return [
                 PopupMenuItem(
-                  child: Text('Hola, [Nombre de Usuario]'), // Puedes colocar el nombre de usuario aquí
+                  child: Text("Hola, $nombre"), // Mostrar el nombre de usuario aquí
                   enabled: false,
                 ),
                 PopupMenuItem(
                   child: ListTile(
-                    leading: Icon(Icons.person), // Icono de perfil
+                    leading: Icon(Icons.account_circle), // Icono de perfil
                     title: Text('Perfil'),
                     onTap: () {
                       // Acción al seleccionar "Perfil"
@@ -40,7 +62,7 @@ class PaginaInicio extends StatelessWidget {
                 ),
               ];
             },
-          ),
+          )
         ],
       ),
       body: Column(
@@ -121,7 +143,7 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
     return GestureDetector(
       onPanUpdate: (details) {
         // Define una sensibilidad personalizada para el swipe
-        final sensitivity = 20.0; 
+        final sensitivity = 20.0;
 
         // Si el cambio en la coordenada X es mayor que la sensibilidad definida
         if (details.delta.dx.abs() > sensitivity) {
