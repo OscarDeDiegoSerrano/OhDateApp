@@ -1,16 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
-void main() => runApp(MaterialApp(
-  title: "App",
-  home: Modificacion(), // Cambio de UserProfile a Modificacion
-  theme: ThemeData(
-    primaryColor: Colors.pink[100],
-    scaffoldBackgroundColor: Colors.pink[100],
-  ),
-));
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // No necesitamos inicializar Firebase para esta versión del código
+  runApp(MyApp());
+}
 
-class Modificacion extends StatelessWidget { // Cambio de UserProfile a Modificacion
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'App',
+      home: Modificacion(),
+      theme: ThemeData(
+        primaryColor: Colors.pink[100],
+        scaffoldBackgroundColor: Colors.pink[100],
+      ),
+    );
+  }
+}
+
+class Modificacion extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,17 +78,15 @@ class Modificacion extends StatelessWidget { // Cambio de UserProfile a Modifica
                           textAlign: TextAlign.center,
                         ),
                         SizedBox(height: 20),
-                        ModificacionForm(), // Cambio de UserProfileForm a ModificacionForm
-                        SizedBox(height: 10), 
+                        ModificacionForm(),
+                        SizedBox(height: 10),
                         ElevatedButton(
-                          
                           onPressed: () {
-                            // Implementar la funcionalidad de aplicar cambios aquí
-                            Navigator.pop(context); // Volvemos a la pantalla anterior
+                            // Aquí puedes agregar la lógica para guardar los datos
                           },
                           child: Text('Aplicar'),
                         ),
-                        SizedBox(height: 10), // Espacio vertical entre los botones
+                        SizedBox(height: 10),
                         ElevatedButton(
                           onPressed: () {
                             // Implementar la navegación a la pantalla de preferencias de búsqueda aquí
@@ -99,19 +107,17 @@ class Modificacion extends StatelessWidget { // Cambio de UserProfile a Modifica
   }
 }
 
-class ModificacionForm extends StatefulWidget { // Cambio de UserProfileForm a ModificacionForm
+class ModificacionForm extends StatefulWidget {
   @override
   _ModificacionFormState createState() => _ModificacionFormState();
 }
 
-class _ModificacionFormState extends State<ModificacionForm> { // Cambio de _UserProfileFormState a _ModificacionFormState
+class _ModificacionFormState extends State<ModificacionForm> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController _nombreController = TextEditingController();
   TextEditingController _apellidoController = TextEditingController();
-  TextEditingController _edadController = TextEditingController();
-  TextEditingController _sexController = TextEditingController();
-  String? _selectedSex;
-  DateTime? _selectedDate;
+  TextEditingController _telefonoController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -124,6 +130,7 @@ class _ModificacionFormState extends State<ModificacionForm> { // Cambio de _Use
             controller: _nombreController,
             decoration: InputDecoration(
               labelText: 'Nombre',
+              filled: true,
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -136,6 +143,7 @@ class _ModificacionFormState extends State<ModificacionForm> { // Cambio de _Use
             controller: _apellidoController,
             decoration: InputDecoration(
               labelText: 'Apellido',
+              filled: true,
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -145,58 +153,27 @@ class _ModificacionFormState extends State<ModificacionForm> { // Cambio de _Use
             },
           ),
           TextFormField(
-            controller: _edadController,
+            controller: _telefonoController,
             decoration: InputDecoration(
-              labelText: 'Fecha de nacimiento',
+              labelText: 'Teléfono',
+              filled: true,
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Por favor ingrese su fecha de nacimiento';
-              }
-              final DateTime selectedDate = DateFormat('dd/MM/yyyy').parse(value);
-              final DateTime currentDate = DateTime.now();
-              final DateTime minDate = DateTime(currentDate.year - 18, currentDate.month, currentDate.day);
-              if (selectedDate.isAfter(minDate)) {
-                return 'Debe ser mayor de 18 años';
+                return 'Por favor ingrese su teléfono';
               }
               return null;
             },
-            onTap: () async {
-              final DateTime? pickedDate = await showDatePicker(
-                context: context,
-                initialDate: _selectedDate ?? DateTime.now(),
-                firstDate: DateTime(1900),
-                lastDate: DateTime.now(),
-              );
-
-              if (pickedDate != null) {
-                setState(() {
-                  _selectedDate = pickedDate;
-                  _edadController.text = DateFormat('dd/MM/yyyy').format(pickedDate);
-                });
-              }
-            },
           ),
-          DropdownButtonFormField<String>(
-            value: _selectedSex,
-            onChanged: (newValue) {
-              setState(() {
-                _selectedSex = newValue;
-              });
-            },
+          TextFormField(
+            controller: _emailController,
             decoration: InputDecoration(
-              labelText: 'Sexo',
+              labelText: 'Correo electrónico',
+              filled: true,
             ),
-            items: <String>['Hombre', 'Mujer', 'No quiero especificar']
-                .map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Por favor seleccione su orientación sexual';
+                return 'Por favor ingrese su correo electrónico';
               }
               return null;
             },
