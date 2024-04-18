@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ohdate_app/paginas/ModificarDatosUsuario.dart';
 import 'package:ohdate_app/paginas/login.dart';
 
 class PaginaInicio extends StatefulWidget {
@@ -43,8 +44,11 @@ class _PaginaInicioState extends State<PaginaInicio> {
                     leading: Icon(Icons.account_circle), // Icono de perfil
                     title: Text('Perfil'),
                     onTap: () {
-                      // Acción al seleccionar "Perfil"
-                      // Puedes redirigir a la página de perfil aquí
+                      // Navegar a la página ModificarDatosUsuario
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => ModificarDatosUsuario()),
+                      );
                     },
                   ),
                 ),
