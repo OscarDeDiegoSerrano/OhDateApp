@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ohdate_app/paginas/inicio.dart';
 
 class PantallaChatsMatch extends StatelessWidget {
   @override
@@ -25,7 +26,7 @@ class PantallaChatsMatch extends StatelessWidget {
               children: [
                 Expanded(
                   child: Container(
-                    color: Colors.pink,
+                    color: Color.fromARGB(255, 247, 150, 230),
                     child: const Center(
                       child: Text(
                         'Conversaciones',
@@ -39,7 +40,7 @@ class PantallaChatsMatch extends StatelessWidget {
                 ),
                 Expanded(
                   child: Container(
-                    color: Colors.green,
+                    color: const Color.fromARGB(255, 119, 231, 123),
                     child: const Center(
                       child: Text(
                         'Matches',
@@ -49,6 +50,37 @@ class PantallaChatsMatch extends StatelessWidget {
                         ),
                       ),
                     ),
+                  ),
+                ),
+                BottomAppBar(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.chat),
+                        onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => PantallaChatsMatch()),
+                        );
+                      },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.home),
+                        onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => PaginaInicio()),
+                        );
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.settings),
+                        onPressed: () {
+                          // Acción al presionar el botón de ajustes
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ],

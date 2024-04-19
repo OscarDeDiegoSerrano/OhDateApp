@@ -16,7 +16,7 @@ class _PaginaInicioState extends State<PaginaInicio> {
 
   @override
   Widget build(BuildContext context) {
-    User? usuarioActual = ServicioAutenticacion.getUsuariActual();
+    User? usuarioActual = ServicioAutenticacion().getUsuariActual();
     String nombre = usuarioActual?.displayName ?? 'Invitado';
     return Scaffold(
       appBar: AppBar(

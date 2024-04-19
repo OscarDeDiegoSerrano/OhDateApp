@@ -131,6 +131,7 @@ class _PaginaChatState extends State<PaginaChat> {
   }
 
   Widget _construirItemMissatge(DocumentSnapshot documentSnapshot){
+    
 
     // final data = document... (altra opció).
     Map<String, dynamic> data = documentSnapshot.data() as Map<String, dynamic>;
@@ -138,7 +139,7 @@ class _PaginaChatState extends State<PaginaChat> {
     // Saber si el mostrem a l'esquerra o a la dreta.
 
     // Si és usuari acutal.
-    bool esUsuariActual = data["nombre"] == ServicioAutenticacion.getUsuariActual()!.uid;
+    bool esUsuariActual = data["nombre"] == ServicioAutenticacion().getUsuariActual()!.uid;
 
     // (Operador ternari).
     var aliniament = esUsuariActual ? Alignment.centerRight : Alignment.centerLeft;
