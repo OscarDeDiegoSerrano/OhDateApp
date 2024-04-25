@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ohdate_app/paginas/conversaciones.dart';
 import 'package:ohdate_app/paginas/inicio.dart';
 import 'package:ohdate_app/paginas/pantalla_chat.dart';
 
@@ -26,7 +27,7 @@ class PantallaChatsMatch extends StatelessWidget {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const PaginaChat(emailAmbQuiParlem: '', idReceptor: '',)),
+                            MaterialPageRoute(builder: (context) => Conversaciones()),
                           );
                         },
                         child: Container(

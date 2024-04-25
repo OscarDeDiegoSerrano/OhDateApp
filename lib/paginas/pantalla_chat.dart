@@ -12,7 +12,7 @@ class PaginaChat extends StatefulWidget {
   const PaginaChat({
     super.key,
     required this.emailAmbQuiParlem,
-    required this.idReceptor,
+    required this.idReceptor, required String nombreUsuario,
   });
 
   @override
