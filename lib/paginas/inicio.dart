@@ -1,11 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ohdate_app/auth/servicio_autentificacion.dart';
 import 'package:ohdate_app/paginas/ModificarDatosUsuario.dart';
 import 'package:ohdate_app/paginas/login.dart';
 import 'package:ohdate_app/paginas/pantalla_ChatsMatch.dart';
-import 'package:ohdate_app/paginas/pantalla_chat.dart';
 
 class PaginaInicio extends StatefulWidget {
   @override
@@ -17,9 +15,15 @@ class _PaginaInicioState extends State<PaginaInicio> {
   @override
   Widget build(BuildContext context) {
     User? usuarioActual = ServicioAutenticacion().getUsuariActual();
-    String nombre = usuarioActual?.displayName ?? 'Invitado';
+    String nombre = usuarioActual?.email ?? 'Invitado';
     return Scaffold(
       appBar: AppBar(
+        title: Center(
+          child: Image.asset(
+            'lib/imatges/LogoOhDate.png',
+            width: 60.0,
+          ),
+        ),
         automaticallyImplyLeading: false,
         actions: [
           PopupMenuButton(
@@ -66,13 +70,6 @@ class _PaginaInicioState extends State<PaginaInicio> {
               alignment: Alignment.center,
               children: [
                 SwipeCardPage(),
-                Positioned(
-                  top: 10.0,
-                  child: Image.asset(
-                    'lib/imatges/LogoOhDate.png',
-                    width: 60.0,
-                  ),
-                ),
               ],
             ),
           ),
@@ -136,6 +133,7 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
   }
 
   @override
+   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onPanUpdate: (details) {
@@ -159,9 +157,13 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(10.0),
-          child: Image.asset(
-            '${photos[currentPhotoIndex]}',
-            fit: BoxFit.cover,
+          child: SizedBox(
+            width: double.infinity,
+            height: double.infinity,
+            child: Image.asset(
+              '${photos[currentPhotoIndex]}',
+              fit: BoxFit.cover,
+            ),
           ),
         ),
       ),
