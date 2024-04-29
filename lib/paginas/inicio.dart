@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ohdate_app/auth/servicio_autentificacion.dart';
@@ -10,8 +12,9 @@ class PaginaInicio extends StatefulWidget {
   _PaginaInicioState createState() => _PaginaInicioState();
 }
 
-class _PaginaInicioState extends State<PaginaInicio> {
 
+
+class _PaginaInicioState extends State<PaginaInicio> {
   @override
   Widget build(BuildContext context) {
     User? usuarioActual = ServicioAutenticacion().getUsuariActual();
@@ -73,6 +76,43 @@ class _PaginaInicioState extends State<PaginaInicio> {
               ],
             ),
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(bottom: 40.0),
+                    child: Image.asset(
+                      'lib/imatges/cruz.png',
+                      width: 60,
+                      height: 60,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 10), // Espacio entre las imágenes
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(bottom: 40.0),
+                    child: Image.asset(
+                      'lib/imatges/tic.png',
+                      width: 60,
+                      height: 60,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
           BottomAppBar(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -80,16 +120,19 @@ class _PaginaInicioState extends State<PaginaInicio> {
                 IconButton(
                   icon: Icon(Icons.chat),
                   onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => PantallaChatsMatch()),
-              );
-            },
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => PantallaChatsMatch()),
+                    );
+                  },
                 ),
                 IconButton(
                   icon: Icon(Icons.home),
                   onPressed: () {
-                    // Acción al presionar el botón de inicio
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => PaginaInicio()),
+                    );
                   },
                 ),
                 IconButton(
@@ -134,39 +177,39 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
 
   @override
    @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onPanUpdate: (details) {
-        // Define una sensibilidad personalizada para el swipe
-        final sensitivity = 20.0;
+Widget build(BuildContext context) {
+  return GestureDetector(
+    onPanUpdate: (details) {
+      // Define una sensibilidad personalizada para el swipe
+      final sensitivity = 30.0;
 
-        // Si el cambio en la coordenada X es mayor que la sensibilidad definida
-        if (details.delta.dx.abs() > sensitivity) {
-          if (details.delta.dx > 0) {
-            swipeRight();
-          } else if (details.delta.dx < 0) {
-            swipeLeft();
-          }
+      // Si el cambio en la coordenada X es mayor que la sensibilidad definida
+      if (details.delta.dx.abs() > sensitivity) {
+        if (details.delta.dx > 0) {
+          swipeRight();
+        } else if (details.delta.dx < 0) {
+          swipeLeft();
         }
-      },
-      child: Container(
-        margin: EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          border: Border.all(color: Color.fromARGB(255, 228, 139, 194)),
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(10.0),
-          child: SizedBox(
-            width: double.infinity,
-            height: double.infinity,
-            child: Image.asset(
-              '${photos[currentPhotoIndex]}',
-              fit: BoxFit.cover,
-            ),
+      }
+    },
+    child: Container(
+      margin: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 50.0),
+      decoration: BoxDecoration(
+        border: Border.all(color: Color.fromARGB(255, 228, 139, 194)),
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10.0),
+        child: SizedBox(
+          width: double.infinity,
+          height: double.infinity,
+          child: Image.asset(
+            '${photos[currentPhotoIndex]}',
+            fit: BoxFit.cover,
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
