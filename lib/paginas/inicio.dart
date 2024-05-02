@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ohdate_app/auth/servicio_autentificacion.dart';
@@ -20,6 +18,7 @@ class _PaginaInicioState extends State<PaginaInicio> {
     User? usuarioActual = ServicioAutenticacion().getUsuariActual();
     String nombre = usuarioActual?.email ?? 'Invitado';
     return Scaffold(
+       backgroundColor: Colors.pink[100],
       appBar: AppBar(
         title: Center(
           child: Image.asset(
@@ -27,6 +26,7 @@ class _PaginaInicioState extends State<PaginaInicio> {
             width: 60.0,
           ),
         ),
+        
         automaticallyImplyLeading: false,
         actions: [
           PopupMenuButton(

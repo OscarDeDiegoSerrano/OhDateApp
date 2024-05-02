@@ -1,50 +1,68 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ohdate_app/auth/servicio_autentificacion.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
+
+// Define el callback onImageSelected
+typedef OnImageSelected = void Function(Uint8List? image);
+
+class FilePickerWidget extends StatelessWidget {
+  final OnImageSelected onImageSelected;
+
+  const FilePickerWidget({Key? key, required this.onImageSelected}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () => _seleccionarImagen(),
+      child: const Text('Seleccionar imagen de perfil'),
+    );
+  }
+
+  void _seleccionarImagen() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+      );
+      if (result != null) {
+        if (kIsWeb) {
+          onImageSelected(result.files.single.bytes);
+        } else {
+          onImageSelected(result.files.single.bytes!);
+        }
+      } else {
+        print('El usuario canceló la selección de imagen.');
+      }
+    } catch (e) {
+      print('Error al seleccionar la imagen: $e');
+    }
+  }
+}
 
 class ModificarDatosUsuario extends StatefulWidget {
   @override
   _ModificarDatosUsuarioState createState() => _ModificarDatosUsuarioState();
 }
 
-class _ModificarDatosUsuarioState extends State
-{
+class _ModificarDatosUsuarioState extends State<ModificarDatosUsuario> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController _nombreController = TextEditingController();
   TextEditingController _apellidoController = TextEditingController();
   TextEditingController _telefonoController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
+  TextEditingController _selectedSexo = TextEditingController();
+  Uint8List? _rutaImagen;
 
   @override
   void initState() {
     super.initState();
-    // Obtener datos del usuario actual y establecerlos en los controladores de texto
+    // Llama a la función para cargar los datos del usuario
     _cargarDatosUsuario();
   }
 
   Future<void> _cargarDatosUsuario() async {
-    try {
-      // Obtener el ID del usuario actual
-      String idUsuarioActual = ServicioAutenticacion().getUsuariActual()!.uid;
-
-      // Obtener los datos del usuario actual desde Firestore
-      DocumentSnapshot usuarioSnapshot = await FirebaseFirestore.instance
-          .collection('usuarios')
-          .doc(idUsuarioActual)
-          .get();
-
-      // Extraer los datos del usuario
-      Map<String, dynamic> datosUsuario = usuarioSnapshot.data() as Map<String, dynamic>;
-
-      // Establecer los valores en los controladores de texto
-      _nombreController.text = datosUsuario['nombre'] ?? '';
-      _apellidoController.text = datosUsuario['apellido'] ?? '';
-      _telefonoController.text = datosUsuario['telefono'] ?? '';
-      _emailController.text = datosUsuario['email'] ?? '';
-    } catch (error) {
-      print('Error al cargar los datos del usuario: $error');
-      // Manejar el error según sea necesario
-    }
+    // Lógica para cargar los datos del usuario desde Firestore
   }
 
   @override
@@ -52,19 +70,19 @@ class _ModificarDatosUsuarioState extends State
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context); // Retornar a la página anterior
+            Navigator.pop(context);
           },
         ),
-        title: Text('Modificar Datos'), // Título de la AppBar
+        title: const Text('Modificar Datos'),
       ),
       body: Stack(
         children: [
           // Fondo
           Positioned.fill(
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 image: DecorationImage(
                   image: AssetImage("lib/imatges/fondo.jpg"),
                   fit: BoxFit.cover,
@@ -85,10 +103,10 @@ class _ModificarDatosUsuarioState extends State
                       fit: BoxFit.contain,
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Container(
                     width: MediaQuery.of(context).size.width * 0.8,
-                    padding: EdgeInsets.all(20.0),
+                    padding: const EdgeInsets.all(20.0),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20.0),
@@ -97,14 +115,14 @@ class _ModificarDatosUsuarioState extends State
                           color: Colors.black.withOpacity(0.3),
                           spreadRadius: 3,
                           blurRadius: 7,
-                          offset: Offset(0, 3),
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text(
+                        const Text(
                           'Modificar datos',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
@@ -112,15 +130,24 @@ class _ModificarDatosUsuarioState extends State
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         Form(
                           key: _formKey,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: <Widget>[
+                              // Llama al widget filePicker para seleccionar la imagen de perfil
+                              FilePickerWidget(
+                                onImageSelected: (Uint8List? image) {
+                                  setState(() {
+                                    _rutaImagen = image;
+                                  });
+                                },
+                              ),
+                              const SizedBox(height: 20),
                               TextFormField(
                                 controller: _nombreController,
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   labelText: 'Nombre',
                                   filled: true,
                                 ),
@@ -133,7 +160,7 @@ class _ModificarDatosUsuarioState extends State
                               ),
                               TextFormField(
                                 controller: _apellidoController,
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   labelText: 'Apellido',
                                   filled: true,
                                 ),
@@ -146,7 +173,7 @@ class _ModificarDatosUsuarioState extends State
                               ),
                               TextFormField(
                                 controller: _telefonoController,
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   labelText: 'Teléfono',
                                   filled: true,
                                 ),
@@ -159,7 +186,7 @@ class _ModificarDatosUsuarioState extends State
                               ),
                               TextFormField(
                                 controller: _emailController,
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   labelText: 'Correo electrónico',
                                   filled: true,
                                 ),
@@ -170,49 +197,33 @@ class _ModificarDatosUsuarioState extends State
                                   return null;
                                 },
                               ),
-                              SizedBox(height: 20),
+                              TextFormField(
+                                controller: _selectedSexo,
+                                decoration: const InputDecoration(
+                                  labelText: 'Sexo',
+                                  filled: true,
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Por favor seleccione su sexo';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 20),
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (_formKey.currentState!.validate()) {
+                                    // Lógica para actualizar los datos en Firestore
+                                  }
+                                },
+                                child: const Text('Aplicar'),
+                              ),
+                              const SizedBox(height: 10),
                             ],
                           ),
                         ),
-                        SizedBox(height: 10),
-                        ElevatedButton(
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              // Obtener los valores de los campos de texto
-                              String nombre = _nombreController.text;
-                              String apellido = _apellidoController.text;
-                              String telefono = _telefonoController.text;
-                              String email = _emailController.text;
-
-                              String idUsuarioActual = ServicioAutenticacion().getUsuariActual()!.uid;
-
-                              // Modificar los datos en la base de datos
-                              FirebaseFirestore.instance
-                                  .collection('usuarios')
-                                  .doc(idUsuarioActual)
-                                  .update({
-                                'nombre': nombre,
-                                'apellido': apellido,
-                                'telefono': telefono,
-                                'email': email,
-                              }).then((_) {
-                                // Si la actualización es correcta, muestra un mensaje
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                  content: Text('Datos actualizados correctamente'),
-                                  duration: Duration(seconds: 2),
-                                ));
-                              }).catchError((error) {
-                                // Si hay un error, muestra mensaje de error
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                  content: Text('Error al actualizar los datos: $error'),
-                                  duration: Duration(seconds: 2),
-                                ));
-                              });
-                            }
-                          },
-                          child: Text('Aplicar'),
-                        ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                       ],
                     ),
                   ),

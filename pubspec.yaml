@@ -16,7 +16,9 @@ dependencies:
     sdk: flutter
   firebase_storage: ^11.6.9
   firebase_core: ^2.27.0
+  image_picker: ^0.8.4+2
   cloud_firestore: ^4.15.7
+  file_picker: ^8.0.0+1
 
 dev_dependencies:
   flutter_test:

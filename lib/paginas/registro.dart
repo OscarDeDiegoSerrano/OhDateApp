@@ -1,4 +1,8 @@
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:ohdate_app/auth/servicio_autentificacion.dart';
 import 'package:ohdate_app/paginas/inicio.dart';
 import 'package:ohdate_app/paginas/login.dart';
@@ -16,16 +20,45 @@ class _RegisterFormState extends State<RegisterForm> {
   TextEditingController emailController = TextEditingController();
   TextEditingController telefonoController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  String? _selectedSexo;
+  String? _imageUrl; // Nuevo estado para mantener la URL de la imagen seleccionada
+
+  Future<void> _pickImage() async {
+  final picker = ImagePicker();
+  final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+  if (pickedFile != null) {
+    setState(() {
+      // Llama a _uploadImage con el archivo seleccionado
+      _uploadImage(File(pickedFile.path));
+    });
+  }
+}
+
+Future<void> _uploadImage(File imageFile) async {
+  try {
+    final Reference storageRef = FirebaseStorage.instance.ref().child('perfil').child('${DateTime.now()}.jpg');
+    final Uint8List imageData = await imageFile.readAsBytes();
+    await storageRef.putData(imageData);
+    final String url = await storageRef.getDownloadURL();
+    setState(() {
+      _imageUrl = url; // Actualiza _imageUrl con la nueva URL de la imagen
+    });
+  } catch (e) {
+    // Maneja cualquier error que pueda ocurrir durante la carga de la imagen
+    print('Error al cargar la imagen: $e');
+  }
+}
+
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // Fondo
           Positioned.fill(
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 image: DecorationImage(
                   image: AssetImage("lib/imatges/fondo.jpg"),
                   fit: BoxFit.cover,
@@ -33,7 +66,6 @@ class _RegisterFormState extends State<RegisterForm> {
               ),
             ),
           ),
-          // Contenido central
           Center(
             child: SingleChildScrollView(
               child: Column(
@@ -46,10 +78,10 @@ class _RegisterFormState extends State<RegisterForm> {
                       fit: BoxFit.contain,
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Container(
                     width: MediaQuery.of(context).size.width * 0.8,
-                    padding: EdgeInsets.all(20.0),
+                    padding: const EdgeInsets.all(20.0),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20.0),
@@ -58,7 +90,7 @@ class _RegisterFormState extends State<RegisterForm> {
                           color: Colors.black.withOpacity(0.3),
                           spreadRadius: 3,
                           blurRadius: 7,
-                          offset: Offset(0, 3),
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
@@ -67,7 +99,7 @@ class _RegisterFormState extends State<RegisterForm> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text(
+                          const Text(
                             '¡Únete a nosotros!',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
@@ -75,10 +107,10 @@ class _RegisterFormState extends State<RegisterForm> {
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           TextFormField(
                             controller: nombreController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Nombre',
                             ),
                             validator: (value) {
@@ -90,7 +122,7 @@ class _RegisterFormState extends State<RegisterForm> {
                           ),
                           TextFormField(
                             controller: apellidoController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Apellido',
                             ),
                             validator: (value) {
@@ -102,7 +134,7 @@ class _RegisterFormState extends State<RegisterForm> {
                           ),
                           TextFormField(
                             controller: emailController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Correo electrónico',
                             ),
                             validator: (value) {
@@ -114,7 +146,7 @@ class _RegisterFormState extends State<RegisterForm> {
                           ),
                           TextFormField(
                             controller: telefonoController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Teléfono',
                             ),
                             validator: (value) {
@@ -126,7 +158,7 @@ class _RegisterFormState extends State<RegisterForm> {
                           ),
                           TextFormField(
                             controller: passwordController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Contraseña',
                             ),
                             obscureText: true,
@@ -137,7 +169,42 @@ class _RegisterFormState extends State<RegisterForm> {
                               return null;
                             },
                           ),
-                          SizedBox(height: 20),
+                          DropdownButtonFormField<String>(
+                            value: _selectedSexo,
+                            onChanged: (nuevoValor) {
+                              setState(() {
+                                _selectedSexo = nuevoValor;
+                              });
+                            },
+                            items: <String>['Hombre', 'Mujer'].map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            decoration: const InputDecoration(
+                              labelText: 'Sexo',
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Por favor seleccione su sexo';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: _pickImage,
+                            child: const Text('Seleccionar imagen'),
+                          ),
+                          if (_imageUrl != null)
+                            Container(
+                              margin: const EdgeInsets.symmetric(vertical: 10),
+                              height: 100,
+                              width: 100,
+                              //child: Image.network(_imageUrl!),
+                            ),
+                          const SizedBox(height: 20),
                           ElevatedButton(
                             onPressed: () {
                               Navigator.push(
@@ -145,7 +212,7 @@ class _RegisterFormState extends State<RegisterForm> {
                                 MaterialPageRoute(builder: (context) => IniciarSesion()),
                               );
                             },
-                            child: Text('¿Ya tienes una cuenta?'),
+                            child: const Text('¿Ya tienes una cuenta?'),
                           ),
                           ElevatedButton(
                             onPressed: () async {
@@ -156,11 +223,13 @@ class _RegisterFormState extends State<RegisterForm> {
                                   nombreController.text,
                                   apellidoController.text,
                                   telefonoController.text,
+                                  _selectedSexo!,
+                                  _imageUrl!,
                                 );
                                 Navigator.of(context).push(MaterialPageRoute(builder: (context) => PaginaInicio()));
                               }
                             },
-                            child: Text('Registrarse'),
+                            child: const Text('Registrarse'),
                           ),
                         ],
                       ),
