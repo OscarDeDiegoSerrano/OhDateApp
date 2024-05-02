@@ -6,6 +6,7 @@ import 'package:ohdate_app/auth/servicio_autentificacion.dart';
 import 'package:ohdate_app/paginas/ModificarDatosUsuario.dart';
 import 'package:ohdate_app/paginas/login.dart';
 import 'package:ohdate_app/paginas/pantalla_ChatsMatch.dart';
+import 'package:ohdate_app/paginas/preferenciabusqueda.dart';
 
 class PaginaInicio extends StatefulWidget {
   @override
@@ -138,7 +139,10 @@ class _PaginaInicioState extends State<PaginaInicio> {
                 IconButton(
                   icon: Icon(Icons.settings),
                   onPressed: () {
-                    // Acción al presionar el botón de ajustes
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => PreferenciaBusqueda()),
+                    );
                   },
                 ),
               ],
@@ -200,13 +204,14 @@ Widget build(BuildContext context) {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(10.0),
-        child: SizedBox(
-          width: double.infinity,
-          height: double.infinity,
-          child: Image.asset(
-            '${photos[currentPhotoIndex]}',
-            fit: BoxFit.cover,
-          ),
+        child: Stack(
+          children: [
+            Image.asset(
+          '${photos[currentPhotoIndex]}',
+          fit: BoxFit.cover,
+        ),
+        Text("dfdsfdsfsd")
+          ],
         ),
       ),
     ),

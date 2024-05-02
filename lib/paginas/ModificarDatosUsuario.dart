@@ -225,3 +225,8 @@ class _ModificarDatosUsuarioState extends State
     );
   }
 }
+
+
+void main() {
+  runApp(ModificarDatosUsuario());
+}

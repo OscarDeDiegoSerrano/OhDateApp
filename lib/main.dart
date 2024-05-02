@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:ohdate_app/firebase_options.dart';
+import 'package:ohdate_app/paginas/registro.dart';
 import 'package:ohdate_app/paginas/cambiarpassword.dart';
 import 'package:ohdate_app/paginas/registro.dart';
 
