@@ -1,7 +1,11 @@
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:ohdate_app/auth/servicio_autentificacion.dart';
 import 'package:ohdate_app/paginas/inicio.dart';
 import 'package:ohdate_app/paginas/login.dart';
+import 'package:ohdate_app/servicios/filePicker.dart';
 
 class RegisterForm extends StatefulWidget {
   @override
@@ -17,6 +21,9 @@ class _RegisterFormState extends State<RegisterForm> {
   TextEditingController telefonoController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
+  String? _selectedGender;
+  File? _selectedImage; // Guarda la imagen seleccionada
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +32,7 @@ class _RegisterFormState extends State<RegisterForm> {
           // Fondo
           Positioned.fill(
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 image: DecorationImage(
                   image: AssetImage("lib/imatges/fondo.jpg"),
                   fit: BoxFit.cover,
@@ -46,10 +53,10 @@ class _RegisterFormState extends State<RegisterForm> {
                       fit: BoxFit.contain,
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Container(
                     width: MediaQuery.of(context).size.width * 0.8,
-                    padding: EdgeInsets.all(20.0),
+                    padding: const EdgeInsets.all(20.0),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20.0),
@@ -58,7 +65,7 @@ class _RegisterFormState extends State<RegisterForm> {
                           color: Colors.black.withOpacity(0.3),
                           spreadRadius: 3,
                           blurRadius: 7,
-                          offset: Offset(0, 3),
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
@@ -67,7 +74,7 @@ class _RegisterFormState extends State<RegisterForm> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text(
+                          const Text(
                             '¡Únete a nosotros!',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
@@ -75,10 +82,10 @@ class _RegisterFormState extends State<RegisterForm> {
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           TextFormField(
                             controller: nombreController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Nombre',
                             ),
                             validator: (value) {
@@ -90,7 +97,7 @@ class _RegisterFormState extends State<RegisterForm> {
                           ),
                           TextFormField(
                             controller: apellidoController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Apellido',
                             ),
                             validator: (value) {
@@ -102,7 +109,7 @@ class _RegisterFormState extends State<RegisterForm> {
                           ),
                           TextFormField(
                             controller: emailController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Correo electrónico',
                             ),
                             validator: (value) {
@@ -114,7 +121,7 @@ class _RegisterFormState extends State<RegisterForm> {
                           ),
                           TextFormField(
                             controller: telefonoController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Teléfono',
                             ),
                             validator: (value) {
@@ -126,7 +133,7 @@ class _RegisterFormState extends State<RegisterForm> {
                           ),
                           TextFormField(
                             controller: passwordController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Contraseña',
                             ),
                             obscureText: true,
@@ -137,7 +144,100 @@ class _RegisterFormState extends State<RegisterForm> {
                               return null;
                             },
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
+                          DropdownButtonFormField<String>(
+                            value: _selectedGender,
+                            onChanged: (newValue) {
+                              setState(() {
+                                _selectedGender = newValue;
+                              });
+                            },
+                            items: <String>['Masculino', 'Femenino']
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            decoration: const InputDecoration(
+                              labelText: 'Género',
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: () async {
+                              // Seleccionar imagen de perfil
+                              FilePickerService filePickerService = FilePickerService();
+                              Uint8List? imageBytes = await filePickerService.pickImageBytes();
+                              if (imageBytes != null) {
+                                // Crear un archivo temporal
+                                final tempFile = File('profile_image.jpg');
+
+                                // Escribir los bytes en el archivo temporal
+                                await tempFile.writeAsBytes(imageBytes);
+
+                                setState(() {
+                                  _selectedImage = tempFile;
+                                });
+                              }
+                            },
+                            child: const Text('Seleccionar imagen de perfil'),
+                          ),
+
+
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate()) {
+                                if (_selectedGender != null && _selectedImage != null) {
+                                  try {
+                                    // Subir imagen de perfil a Firebase Storage
+                                    String imageName = emailController.text.replaceAll('@', '_').replaceAll('.', '_') + '.jpg'; // Nombre de la imagen basado en el correo electrónico
+                                    firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance.ref('imagenes/$imageName'); // Ruta a la carpeta "imagenes"
+
+                                    // Convierte el archivo de imagen en bytes
+                                    Uint8List imageBytes = Uint8List.fromList(await _selectedImage!.readAsBytes());
+
+                                    // Sube los bytes de la imagen a Firebase Storage
+                                    await ref.putData(imageBytes);
+
+                                    // Obtiene la URL de descarga de la imagen
+                                    String imageUrl = await ref.getDownloadURL();
+
+                                    // Registrar usuario en Firebase Authentication y Firestore
+                                    String? result = await ServicioAutenticacion().registrarUsuario(
+                                      emailController.text,
+                                      passwordController.text,
+                                      nombreController.text,
+                                      apellidoController.text,
+                                      telefonoController.text,
+                                      _selectedGender!,
+                                      imageUrl, // Pasando la URL de la imagen como cadena de texto
+                                    );
+
+                                    if (result == null) {
+                                      // Registro exitoso
+                                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => PaginaInicio()));
+                                    } else {
+                                      // Manejar el error si ocurrió durante el registro
+                                      // Puedes mostrar un mensaje de error al usuario
+                                      print('Error durante el registro: $result');
+                                    }
+                                  } catch (e) {
+                                    print('Error al registrar usuario: $e');
+                                  }
+                                } else {
+                                  // El usuario no seleccionó género o imagen
+                                  // Puedes mostrar un mensaje para que seleccione ambos
+                                  print('Por favor seleccione género e imagen de perfil.');
+                                }
+                              }
+                            },
+                            child: const Text('Registrarse'),
+                          ),
+
+
+                          const SizedBox(height: 20),
                           ElevatedButton(
                             onPressed: () {
                               Navigator.push(
@@ -145,22 +245,7 @@ class _RegisterFormState extends State<RegisterForm> {
                                 MaterialPageRoute(builder: (context) => IniciarSesion()),
                               );
                             },
-                            child: Text('¿Ya tienes una cuenta?'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () async {
-                              if (_formKey.currentState!.validate()) {
-                                ServicioAutenticacion().registrarUsuario(
-                                  emailController.text,
-                                  passwordController.text,
-                                  nombreController.text,
-                                  apellidoController.text,
-                                  telefonoController.text,
-                                );
-                                Navigator.of(context).push(MaterialPageRoute(builder: (context) => PaginaInicio()));
-                              }
-                            },
-                            child: Text('Registrarse'),
+                            child: const Text('¿Ya tienes una cuenta?'),
                           ),
                         ],
                       ),

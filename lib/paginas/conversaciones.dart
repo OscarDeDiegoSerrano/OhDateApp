@@ -2,13 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:ohdate_app/paginas/inicio.dart';
 import 'package:ohdate_app/paginas/pantalla_ChatsMatch.dart';
+import 'package:ohdate_app/paginas/preferenciaBusqueda.dart';
 
 class Conversaciones extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Conversaciones'),
+        title: const Text('Conversaciones'),
         leading: Image.asset(
           'lib/imatges/LogoOhDate.png',
           width: 40,
@@ -20,7 +21,7 @@ class Conversaciones extends StatelessWidget {
           stream: obtenerNombresUsuarios(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: Text('Carregant dades...'));
+              return const Center(child: Text('Carregant dades...'));
             } else if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else {
@@ -47,36 +48,39 @@ class Conversaciones extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: BottomAppBar(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            IconButton(
-              icon: Icon(Icons.chat),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => PantallaChatsMatch()),
-                );
-              },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.chat),
+                  onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PantallaChatsMatch()),
+                  );
+                },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.home),
+                  onPressed: () {
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PaginaInicio()),
+                  );
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.settings),
+                  onPressed: () {
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PreferenciaBusqueda()),
+                  );
+                  },
+                ),
+              ],
             ),
-            IconButton(
-              icon: Icon(Icons.home),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => PaginaInicio()),
-                );
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.settings),
-              onPressed: () {
-                // Acción al presionar el botón de ajustes
-              },
-            ),
-          ],
-        ),
-      ),
+          ),
     );
   }
 }
