@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:ohdate_app/auth/servicio_autentificacion.dart';
+import 'package:ohdate_app/servicios/servicio_autentificacion.dart';
 import 'package:ohdate_app/components/bombolla_missatge.dart';
 import 'package:ohdate_app/servicios/servei_chat.dart';
 

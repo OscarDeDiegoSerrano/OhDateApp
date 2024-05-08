@@ -1,8 +1,11 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:ohdate_app/auth/servicio_autentificacion.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:ohdate_app/servicios/servicio_autentificacion.dart';
 import 'package:ohdate_app/paginas/inicio.dart';
 import 'package:ohdate_app/paginas/login.dart';
 import 'package:ohdate_app/servicios/filePicker.dart';
@@ -23,6 +26,70 @@ class _RegisterFormState extends State<RegisterForm> {
 
   String? _selectedGender;
   File? _selectedImage; // Guarda la imagen seleccionada
+
+  File? _imatgeSeleccionadaApp;
+  Uint8List? _imatgeSeleccionadaWeb;
+  bool _imatgeAPuntPerPujar = false;
+
+  Future<void> _triaImatge() async {
+
+    final ImagePicker picker = ImagePicker();
+    XFile? imatge = await picker.pickImage(source: ImageSource.gallery);
+
+    // Si trien i trobem la imatge.
+    if (imatge != null) {
+
+      // Si l'App s'executa en un dispositiu mòbil.
+      if (!kIsWeb) {
+
+        File arxiuSeleccionat = File(imatge.path);
+        
+        setState(() {
+          _imatgeSeleccionadaApp = arxiuSeleccionat;
+          _imatgeAPuntPerPujar = true;
+        });
+        
+      }
+
+      // Si l'App s'executa en un navegador web.
+      if (kIsWeb) {
+        Uint8List arxiuEnBytes = await imatge.readAsBytes();
+
+        setState(() {
+          _imatgeSeleccionadaWeb = arxiuEnBytes;
+          _imatgeAPuntPerPujar = true;
+        });
+      }
+    }
+
+  }
+
+  Future<bool> pujarImatgePerUsuari() async {
+
+    String idUsuari = ServicioAutenticacion().getUsuariActual()!.uid;
+
+    Reference ref = FirebaseStorage.instance.ref().child("$idUsuari/avatar/$idUsuari");
+
+    // Agafem la imatge de la variable que la tingui (la de web o la de App).
+    if (_imatgeSeleccionadaApp != null) {
+
+      try {
+        await ref.putFile(_imatgeSeleccionadaApp!);
+        return true;
+      } catch (e) { return false; }
+      
+    }
+
+    if (_imatgeSeleccionadaWeb != null) {
+
+      try {
+        await ref.putData(_imatgeSeleccionadaWeb!);
+        return true;
+      } catch (e) { return false; }
+    }
+
+    return false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -164,24 +231,43 @@ class _RegisterFormState extends State<RegisterForm> {
                             ),
                           ),
                           const SizedBox(height: 20),
-                          ElevatedButton(
-                            onPressed: () async {
-                              // Seleccionar imagen de perfil
-                              FilePickerService filePickerService = FilePickerService();
-                              Uint8List? imageBytes = await filePickerService.pickImageBytes();
-                              if (imageBytes != null) {
-                                // Crear un archivo temporal
-                                final tempFile = File('profile_image.jpg');
 
-                                // Escribir los bytes en el archivo temporal
-                                await tempFile.writeAsBytes(imageBytes);
+                          
+                          GestureDetector(
+                            onTap: _triaImatge,
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.blue[400],
+                              ),
+                              child: const Text("Tria imatge"),
+                            ),
+                          ),
+                          
+                          GestureDetector(
+                            onTap: () async {
 
-                                setState(() {
-                                  _selectedImage = tempFile;
-                                });
+                              print("Hola");
+
+                              if (_imatgeAPuntPerPujar) {
+
+                                bool imatgePujadaCorrectament = await pujarImatgePerUsuari();
+
+                                if (imatgePujadaCorrectament) {
+                                  //mostrarImatge();//
+                                  setState(() {
+                                    
+                                  });
+                                }
                               }
                             },
-                            child: const Text('Seleccionar imagen de perfil'),
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.blue[400],
+                              ),
+                              child: const Text("Puja imatge"),
+                            ),
                           ),
 
 

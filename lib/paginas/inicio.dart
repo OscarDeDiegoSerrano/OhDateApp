@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ohdate_app/auth/servicio_autentificacion.dart';
+import 'package:ohdate_app/servicios/servicio_autentificacion.dart';
 import 'package:ohdate_app/paginas/ModificarDatosUsuario.dart';
 import 'package:ohdate_app/paginas/login.dart';
 import 'package:ohdate_app/paginas/pantalla_ChatsMatch.dart';

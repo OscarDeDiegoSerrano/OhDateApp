@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ohdate_app/auth/servicio_autentificacion.dart';
+import 'package:ohdate_app/servicios/servicio_autentificacion.dart';
 
 class ModificarDatosUsuario extends StatefulWidget {
   @override
