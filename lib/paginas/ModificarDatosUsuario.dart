@@ -52,19 +52,19 @@ class _ModificarDatosUsuarioState extends State
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context); // Retornar a la página anterior
           },
         ),
-        title: Text('Modificar Datos'), // Título de la AppBar
+        title: const Text('Modificar Datos'), // Título de la AppBar
       ),
       body: Stack(
         children: [
           // Fondo
           Positioned.fill(
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 image: DecorationImage(
                   image: AssetImage("lib/imatges/fondo.jpg"),
                   fit: BoxFit.cover,
@@ -85,10 +85,10 @@ class _ModificarDatosUsuarioState extends State
                       fit: BoxFit.contain,
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Container(
                     width: MediaQuery.of(context).size.width * 0.8,
-                    padding: EdgeInsets.all(20.0),
+                    padding: const EdgeInsets.all(20.0),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20.0),
@@ -97,14 +97,14 @@ class _ModificarDatosUsuarioState extends State
                           color: Colors.black.withOpacity(0.3),
                           spreadRadius: 3,
                           blurRadius: 7,
-                          offset: Offset(0, 3),
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text(
+                        const Text(
                           'Modificar datos',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
@@ -112,7 +112,7 @@ class _ModificarDatosUsuarioState extends State
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         Form(
                           key: _formKey,
                           child: Column(
@@ -120,7 +120,7 @@ class _ModificarDatosUsuarioState extends State
                             children: <Widget>[
                               TextFormField(
                                 controller: _nombreController,
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   labelText: 'Nombre',
                                   filled: true,
                                 ),
@@ -133,7 +133,7 @@ class _ModificarDatosUsuarioState extends State
                               ),
                               TextFormField(
                                 controller: _apellidoController,
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   labelText: 'Apellido',
                                   filled: true,
                                 ),
@@ -146,7 +146,7 @@ class _ModificarDatosUsuarioState extends State
                               ),
                               TextFormField(
                                 controller: _telefonoController,
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   labelText: 'Teléfono',
                                   filled: true,
                                 ),
@@ -159,7 +159,7 @@ class _ModificarDatosUsuarioState extends State
                               ),
                               TextFormField(
                                 controller: _emailController,
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   labelText: 'Correo electrónico',
                                   filled: true,
                                 ),
@@ -170,11 +170,11 @@ class _ModificarDatosUsuarioState extends State
                                   return null;
                                 },
                               ),
-                              SizedBox(height: 20),
+                              const SizedBox(height: 20),
                             ],
                           ),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         ElevatedButton(
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
@@ -197,22 +197,22 @@ class _ModificarDatosUsuarioState extends State
                                 'email': email,
                               }).then((_) {
                                 // Si la actualización es correcta, muestra un mensaje
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                                   content: Text('Datos actualizados correctamente'),
-                                  duration: Duration(seconds: 2),
+                                  duration: const Duration(seconds: 2),
                                 ));
                               }).catchError((error) {
                                 // Si hay un error, muestra mensaje de error
                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                   content: Text('Error al actualizar los datos: $error'),
-                                  duration: Duration(seconds: 2),
+                                  duration: const Duration(seconds: 2),
                                 ));
                               });
                             }
                           },
-                          child: Text('Aplicar'),
+                          child: const Text('Aplicar'),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                       ],
                     ),
                   ),

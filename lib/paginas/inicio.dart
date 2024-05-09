@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:ohdate_app/servicios/servicio_autentificacion.dart';
 import 'package:ohdate_app/paginas/ModificarDatosUsuario.dart';
+import 'package:ohdate_app/paginas/conversaciones.dart';
 import 'package:ohdate_app/paginas/login.dart';
-import 'package:ohdate_app/paginas/pantalla_ChatsMatch.dart';
 import 'package:ohdate_app/paginas/preferenciaBusqueda.dart';
 
 class PaginaInicio extends StatefulWidget {
@@ -16,6 +15,7 @@ class PaginaInicio extends StatefulWidget {
 class _PaginaInicioState extends State<PaginaInicio> {
   User? usuarioActual = FirebaseAuth.instance.currentUser;
   late String nombre;
+  List<String> listaConversaciones = [];
 
   @override
   void initState() {
@@ -31,6 +31,13 @@ class _PaginaInicioState extends State<PaginaInicio> {
     DocumentSnapshot document = await FirebaseFirestore.instance.collection('usuarios').doc(usuarioActual!.uid).get();
     setState(() {
       nombre = document['nombre'];
+    });
+  }
+
+  // Callback function to update the list of conversations
+  void updateConversations(String userName) {
+    setState(() {
+      listaConversaciones.add(userName);
     });
   }
 
@@ -55,8 +62,8 @@ class _PaginaInicioState extends State<PaginaInicio> {
                 ),
                 PopupMenuItem(
                   child: ListTile(
-                    leading: Icon(Icons.account_circle), // Icono de perfil
-                    title: Text('Perfil'),
+                    leading: const Icon(Icons.account_circle), // Icono de perfil
+                    title: const Text('Perfil'),
                     onTap: () {
                       // Navegar a la página ModificarDatosUsuario
                       Navigator.push(
@@ -68,8 +75,8 @@ class _PaginaInicioState extends State<PaginaInicio> {
                 ),
                 PopupMenuItem(
                   child: ListTile(
-                    leading: Icon(Icons.logout), // Icono de cerrar sesión
-                    title: Text('Cerrar Sesión'),
+                    leading: const Icon(Icons.logout), // Icono de cerrar sesión
+                    title: const Text('Cerrar Sesión'),
                     onTap: () {
                       Navigator.pushReplacement(
                         context,
@@ -89,7 +96,7 @@ class _PaginaInicioState extends State<PaginaInicio> {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                SwipeCardPage(),
+                SwipeCardPage(updateConversations, listaConversaciones), // Pass both callback function and listaConversaciones
               ],
             ),
           ),
@@ -98,16 +105,16 @@ class _PaginaInicioState extends State<PaginaInicio> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 IconButton(
-                  icon: Icon(Icons.chat),
+                  icon: const Icon(Icons.chat),
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => PantallaChatsMatch()),
+                      MaterialPageRoute(builder: (context) => Conversaciones()),
                     );
                   },
                 ),
                 IconButton(
-                  icon: Icon(Icons.home),
+                  icon: const Icon(Icons.home),
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -116,7 +123,7 @@ class _PaginaInicioState extends State<PaginaInicio> {
                   },
                 ),
                 IconButton(
-                  icon: Icon(Icons.settings),
+                  icon: const Icon(Icons.settings),
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -134,6 +141,11 @@ class _PaginaInicioState extends State<PaginaInicio> {
 }
 
 class SwipeCardPage extends StatefulWidget {
+  final Function(String) updateConversations;
+  final List<String> listaConversaciones;
+
+  SwipeCardPage(this.updateConversations, this.listaConversaciones);
+
   @override
   _SwipeCardPageState createState() => _SwipeCardPageState();
 }
@@ -145,7 +157,7 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
   @override
   void initState() {
     super.initState();
-    // Cargar los datos de usuarios cuando se inicia el widget
+    // Load user data when widget is initialized
     loadUsers();
   }
 
@@ -154,25 +166,35 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
     QuerySnapshot querySnapshot = await users.get();
     querySnapshot.docs.forEach((doc) {
       usersData.add({
-        'name': doc['nombre'] ?? '', // Obtener el nombre del usuario, asegurándose de que no sea nulo
-        'photoUrl': '', // Inicialmente, establecer la URL de la foto del usuario como vacía
-        'uid': doc.id, // Obtener el UID del usuario
+        'name': doc['nombre'] ?? '',
+        'photoUrl': '',
+        'uid': doc.id,
       });
     });
 
-    // Obtener las URLs de las imágenes de los usuarios
+    // Get users' photo URLs
     await getUsersPhotoUrls();
   }
 
   Future<void> getUsersPhotoUrls() async {
     for (int i = 0; i < usersData.length; i++) {
-      // Obtener la URL de la imagen del usuario
-      String photoUrl = await FirebaseStorage.instance.ref().child('${usersData[i]['uid']}/avatar/${usersData[i]['uid']}').getDownloadURL();
-      // Actualizar la URL de la foto del usuario en la lista
+      String? photoUrl;
+      try {
+        photoUrl = await FirebaseStorage.instance.ref().child('${usersData[i]['uid']}/avatar/${usersData[i]['uid']}').getDownloadURL();
+      } catch (e) {
+        print('Error obteniendo la URL de la foto del usuario: $e');
+      }
       setState(() {
-        usersData[i]['photoUrl'] = photoUrl;
+        usersData[i]['photoUrl'] = photoUrl ?? '';
       });
     }
+  }
+
+  Future<void> agregarCampoListaConversaciones(String documentId, List<String> ids) async {
+    DocumentReference documentReference = FirebaseFirestore.instance.collection('usuarios').doc(documentId);
+    await documentReference.update({
+      'listaConversaciones': ids,
+    });
   }
 
   void swipeLeft() {
@@ -181,10 +203,19 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
     });
   }
 
-  void swipeRight() {
+  void swipeRight() async {
     setState(() {
       currentPhotoIndex = (currentPhotoIndex - 1 + usersData.length) % usersData.length;
     });
+
+    String userName = usersData[currentPhotoIndex]['name'];
+    if (!widget.listaConversaciones.contains(userName)) {
+      widget.listaConversaciones.add(userName);
+
+      await agregarCampoListaConversaciones('usuarios', widget.listaConversaciones);
+
+      widget.updateConversations(userName);
+    }
   }
 
   @override
@@ -194,16 +225,16 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
         final sensitivity = 20.0;
         if (details.delta.dx.abs() > sensitivity) {
           if (details.delta.dx > 0) {
-            swipeRight();
+            swipeRight(); // Swipe to the right
           } else if (details.delta.dx < 0) {
-            swipeLeft();
+            swipeLeft(); // Swipe to the left
           }
         }
       },
       child: Container(
-        margin: EdgeInsets.all(16.0),
+        margin: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          border: Border.all(color: Color.fromARGB(255, 228, 139, 194)),
+          border: Border.all(color: const Color.fromARGB(255, 228, 139, 194)),
           borderRadius: BorderRadius.circular(10.0),
         ),
         child: ClipRRect(
@@ -212,7 +243,7 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
             width: double.infinity,
             height: double.infinity,
             child: usersData.isEmpty
-                ? Center(child: CircularProgressIndicator()) // Indicador de carga mientras se cargan los datos
+                ? const Center(child: CircularProgressIndicator()) // Loading indicator while data is loading
                 : Stack(
                     children: [
                       Image.network(
@@ -226,7 +257,7 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
                         left: 10,
                         child: Text(
                           usersData[currentPhotoIndex]['name'],
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 24,
                             fontWeight: FontWeight.bold,

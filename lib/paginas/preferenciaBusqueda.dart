@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:ohdate_app/paginas/conversaciones.dart';
 import 'package:ohdate_app/paginas/inicio.dart';
+import 'package:ohdate_app/paginas/pantalla_ChatsMatch.dart';
 
 class PreferenciaBusqueda extends StatefulWidget {
   @override
@@ -107,6 +109,42 @@ class _PreferenciaBusquedaState extends State<PreferenciaBusqueda> {
                   }
                 },
                 child: const Text('Guardar Preferencias'),
+              ),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: Positioned(
+        left: 0,
+        right: 0,
+        bottom: 0,
+        child: BottomAppBar(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.chat),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Conversaciones()),
+                  );
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.home),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PaginaInicio()),
+                  );
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.settings),
+                onPressed: () {
+                  // Acción al presionar el botón de ajustes
+                },
               ),
             ],
           ),

@@ -1,10 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:ohdate_app/paginas/inicio.dart';
-import 'package:ohdate_app/paginas/pantalla_ChatsMatch.dart';
 import 'package:ohdate_app/paginas/preferenciaBusqueda.dart';
 
 class Conversaciones extends StatelessWidget {
+  // Función para obtener la lista de nombres de usuarios desde Firestore
+  Stream<List<String>> obtenerNombresUsuarios() {
+    return FirebaseFirestore.instance
+        .collection('usuarios')
+        .snapshots()
+        .map((snapshot) {
+      List<String> nombres = [];
+      snapshot.docs.forEach((doc) {
+        nombres.add(doc['nombre']);
+      });
+      return nombres;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,36 +29,36 @@ class Conversaciones extends StatelessWidget {
           height: 40,
         ),
       ),
-      body: Container(
-        child: StreamBuilder<List<String>>(
-          stream: obtenerNombresUsuarios(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: Text('Carregant dades...'));
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else {
-              // Muestra la lista de nombres de usuario
-              return ListView.builder(
-                itemCount: snapshot.data?.length ?? 0,
-                itemBuilder: (context, index) {
-                  String nombreUsuario = snapshot.data![index];
-                  return ListTile(
-                    title: Text(nombreUsuario),
-                    onTap: () {
-                      // Redirige a la pantalla de chat al hacer clic en un usuario
-                      Navigator.pushNamed(
-                        context,
-                        '/pantallaChat',
-                        arguments: nombreUsuario,
-                      );
-                    },
-                  );
-                },
-              );
-            }
-          },
-        ),
+      body: StreamBuilder<List<String>>(
+        stream: obtenerNombresUsuarios(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          List<String> listaConversaciones = snapshot.data ?? [];
+          return Container(
+            child: ListView.builder(
+              itemCount: listaConversaciones.length,
+              itemBuilder: (context, index) {
+                String nombreUsuario = listaConversaciones[index];
+                return ListTile(
+                  title: Text(nombreUsuario),
+                  onTap: () {
+                    // Redirige a la pantalla de chat al hacer clic en un usuario
+                    Navigator.pushNamed(
+                      context,
+                      '/pantalla_chat.dart',
+                      arguments: nombreUsuario,
+                    );
+                  },
+                );
+              },
+            ),
+          );
+        },
       ),
       bottomNavigationBar: BottomAppBar(
             child: Row(
@@ -54,28 +67,28 @@ class Conversaciones extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.chat),
                   onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => PantallaChatsMatch()),
-                  );
-                },
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Conversaciones()),
+                    );
+                  },
                 ),
                 IconButton(
                   icon: const Icon(Icons.home),
                   onPressed: () {
                     Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => PaginaInicio()),
-                  );
+                      context,
+                      MaterialPageRoute(builder: (context) => PaginaInicio()),
+                    );
                   },
                 ),
                 IconButton(
                   icon: const Icon(Icons.settings),
                   onPressed: () {
                     Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => PreferenciaBusqueda()),
-                  );
+                      context,
+                      MaterialPageRoute(builder: (context) => PreferenciaBusqueda()),
+                    );
                   },
                 ),
               ],
@@ -85,8 +98,9 @@ class Conversaciones extends StatelessWidget {
   }
 }
 
-  
-  Stream<List<String>> obtenerNombresUsuarios() {
+
+
+Stream<List<String>> obtenerNombresUsuarios() {
   return FirebaseFirestore.instance
       .collection('OhDate')
       .doc('usuarios')
