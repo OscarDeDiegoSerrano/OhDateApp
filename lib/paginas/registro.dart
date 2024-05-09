@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:ohdate_app/servicios/servicio_autentificacion.dart';
 import 'package:ohdate_app/paginas/inicio.dart';
 import 'package:ohdate_app/paginas/login.dart';
-import 'package:ohdate_app/servicios/filePicker.dart';
+
 
 class RegisterForm extends StatefulWidget {
   @override
@@ -24,12 +23,13 @@ class _RegisterFormState extends State<RegisterForm> {
   TextEditingController telefonoController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
+  ServicioAutenticacion serveiAuth = ServicioAutenticacion();
+
   String? _selectedGender;
-  File? _selectedImage; // Guarda la imagen seleccionada
+  //File? _selectedImage; // Guarda la imagen seleccionada
 
   File? _imatgeSeleccionadaApp;
   Uint8List? _imatgeSeleccionadaWeb;
-  bool _imatgeAPuntPerPujar = false;
 
   Future<void> _triaImatge() async {
 
@@ -46,7 +46,6 @@ class _RegisterFormState extends State<RegisterForm> {
         
         setState(() {
           _imatgeSeleccionadaApp = arxiuSeleccionat;
-          _imatgeAPuntPerPujar = true;
         });
         
       }
@@ -57,7 +56,6 @@ class _RegisterFormState extends State<RegisterForm> {
 
         setState(() {
           _imatgeSeleccionadaWeb = arxiuEnBytes;
-          _imatgeAPuntPerPujar = true;
         });
       }
     }
@@ -65,31 +63,46 @@ class _RegisterFormState extends State<RegisterForm> {
   }
 
   Future<bool> pujarImatgePerUsuari() async {
-
-    String idUsuari = ServicioAutenticacion().getUsuariActual()!.uid;
-
-    Reference ref = FirebaseStorage.instance.ref().child("$idUsuari/avatar/$idUsuari");
-
-    // Agafem la imatge de la variable que la tingui (la de web o la de App).
-    if (_imatgeSeleccionadaApp != null) {
-
-      try {
-        await ref.putFile(_imatgeSeleccionadaApp!);
-        return true;
-      } catch (e) { return false; }
-      
-    }
-
-    if (_imatgeSeleccionadaWeb != null) {
-
-      try {
-        await ref.putData(_imatgeSeleccionadaWeb!);
-        return true;
-      } catch (e) { return false; }
-    }
-
+  // Obtén el usuario actual de manera segura
+  final usuarioActual = serveiAuth.getUsuariActual();
+  if (usuarioActual == null) {
+    // Manejar el caso en que el usuario actual es nulo
+    print("No encuentra usaurio");
     return false;
   }
+
+  String idUsuari = usuarioActual.uid;
+  Reference ref = FirebaseStorage.instance.ref().child("$idUsuari/avatar/$idUsuari");
+
+  // Agafem la imatge de la variable que la tingui (la de web o la de App).
+  if (_imatgeSeleccionadaApp != null) {
+    try {
+      await ref.putFile(_imatgeSeleccionadaApp!);
+      return true;
+    } catch (e) {
+      // Manejar cualquier error que ocurra durante la carga del archivo
+      print(e.toString());
+      return false;
+    }
+  }
+
+  if (_imatgeSeleccionadaWeb != null) {
+    try {
+      await ref.putData(_imatgeSeleccionadaWeb!);
+      return true;
+    } catch (e) {
+      // Manejar cualquier error que ocurra durante la carga de datos
+      print(e.toString());
+      return false;
+    }
+  }
+
+  // Manejar el caso en que ambas imágenes sean nulas
+  return false;
+}
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -233,41 +246,24 @@ class _RegisterFormState extends State<RegisterForm> {
                           const SizedBox(height: 20),
 
                           
-                          GestureDetector(
-                            onTap: _triaImatge,
-                            child: Container(
+                          ElevatedButton(
+                            onPressed: _triaImatge,
+                            style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.blue[400],
-                              ),
-                              child: const Text("Tria imatge"),
+                              primary: Color.fromARGB(255, 236, 144, 229),
                             ),
+                            child: const Text("Tria imatge"),
                           ),
+
                           
-                          GestureDetector(
-                            onTap: () async {
-
-                              print("Hola");
-
-                              if (_imatgeAPuntPerPujar) {
-
-                                bool imatgePujadaCorrectament = await pujarImatgePerUsuari();
-
-                                if (imatgePujadaCorrectament) {
-                                  //mostrarImatge();//
-                                  setState(() {
-                                    
-                                  });
-                                }
-                              }
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.blue[400],
-                              ),
-                              child: const Text("Puja imatge"),
-                            ),
+                          Container(
+                            height: 100,
+                            width: 100,
+                            child: _imatgeSeleccionadaWeb == null && _imatgeSeleccionadaApp == null ? 
+                              Container() : 
+                              kIsWeb ? 
+                              Image.memory(_imatgeSeleccionadaWeb!, fit: BoxFit.fill,) :
+                              Image.file(_imatgeSeleccionadaApp!, fit: BoxFit.fill,),
                           ),
 
 
@@ -275,40 +271,37 @@ class _RegisterFormState extends State<RegisterForm> {
                           ElevatedButton(
                             onPressed: () async {
                               if (_formKey.currentState!.validate()) {
-                                if (_selectedGender != null && _selectedImage != null) {
+                                if (_selectedGender != null) {
                                   try {
                                     // Subir imagen de perfil a Firebase Storage
-                                    String imageName = emailController.text.replaceAll('@', '_').replaceAll('.', '_') + '.jpg'; // Nombre de la imagen basado en el correo electrónico
-                                    firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance.ref('imagenes/$imageName'); // Ruta a la carpeta "imagenes"
+                                    
 
-                                    // Convierte el archivo de imagen en bytes
-                                    Uint8List imageBytes = Uint8List.fromList(await _selectedImage!.readAsBytes());
+                                    // Verificar si la imagen se subió correctamente
+                                    if (true) {
+                                      // La imagen se subió correctamente, ahora registrar usuario en Firebase Authentication y Firestore
+                                      String? result = await serveiAuth.registrarUsuario(
+                                        emailController.text,
+                                        passwordController.text,
+                                        nombreController.text,
+                                        apellidoController.text,
+                                        telefonoController.text,
+                                        _selectedGender!
+                                      );
 
-                                    // Sube los bytes de la imagen a Firebase Storage
-                                    await ref.putData(imageBytes);
-
-                                    // Obtiene la URL de descarga de la imagen
-                                    String imageUrl = await ref.getDownloadURL();
-
-                                    // Registrar usuario en Firebase Authentication y Firestore
-                                    String? result = await ServicioAutenticacion().registrarUsuario(
-                                      emailController.text,
-                                      passwordController.text,
-                                      nombreController.text,
-                                      apellidoController.text,
-                                      telefonoController.text,
-                                      _selectedGender!,
-                                      imageUrl, // Pasando la URL de la imagen como cadena de texto
-                                    );
-
-                                    if (result == null) {
-                                      // Registro exitoso
-                                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => PaginaInicio()));
+                                      if (result == null) {
+                                        // Registro exitoso
+                                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => PaginaInicio()));
+                                      } else {
+                                        // Manejar el error si ocurrió durante el registro
+                                        // Puedes mostrar un mensaje de error al usuario
+                                        print('Error durante el registro: $result');
+                                      }
                                     } else {
-                                      // Manejar el error si ocurrió durante el registro
-                                      // Puedes mostrar un mensaje de error al usuario
-                                      print('Error durante el registro: $result');
+                                      // La imagen no se subió correctamente, mostrar mensaje de error
+                                      print('Error al subir la imagen a Firebase Storage');
                                     }
+
+                                    bool imatgePujada = await pujarImatgePerUsuari();
                                   } catch (e) {
                                     print('Error al registrar usuario: $e');
                                   }
@@ -321,7 +314,6 @@ class _RegisterFormState extends State<RegisterForm> {
                             },
                             child: const Text('Registrarse'),
                           ),
-
 
                           const SizedBox(height: 20),
                           ElevatedButton(

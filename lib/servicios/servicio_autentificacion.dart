@@ -9,7 +9,7 @@ class ServicioAutenticacion {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<String?> registrarUsuario(String email, String password, String nombre, String apellido, String telefono, String sexo, String? imageUrl) async {
+  Future<String?> registrarUsuario(String email, String password, String nombre, String apellido, String telefono, String sexo) async {
   try {
     // Registro de usuario en Firebase Authentication
     UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
@@ -18,7 +18,7 @@ class ServicioAutenticacion {
     );
 
     // Subir imagen de perfil a Firebase Storage
-    if (imageUrl != null) {
+    /*if (imageUrl != null) {
       //String imageName = email.replaceAll('@', '_').replaceAll('.', '_') + '.jpg'; // Nombre de la imagen basado en el correo electrónico
       //firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance.ref('imagenes/$imageName');
 
@@ -31,9 +31,8 @@ class ServicioAutenticacion {
         'apellido': apellido,
         'telefono': telefono,
         'sexo': sexo, // Nuevo campo para guardar el sexo
-        'imagen': imageUrl, // Guardar la URL de la imagen en Firestore
       });
-    } else {
+    } else {*/
       // Guardar datos adicionales en Firestore sin la imagen
       await _firestore.collection('usuarios').doc(userCredential.user!.uid).set({
         'email': email,
@@ -43,7 +42,7 @@ class ServicioAutenticacion {
         'telefono': telefono,
         'sexo': sexo, // Nuevo campo para guardar el sexo
       });
-    }
+    //}
 
     return null; // Registro exitoso
   } catch (e) {
