@@ -151,6 +151,7 @@ class _PaginaInicioState extends State<PaginaInicio> {
   }
 }
 
+
 class SwipeCardPage extends StatefulWidget {
   final Function(String) updateConversations;
   final List<String> listaConversaciones;
@@ -164,6 +165,7 @@ class SwipeCardPage extends StatefulWidget {
 class _SwipeCardPageState extends State<SwipeCardPage> {
   List<Map<String, dynamic>> usersData = [];
   int currentPhotoIndex = 0;
+  final User usuarioActual = FirebaseAuth.instance.currentUser!;
 
   @override
   void initState() {
@@ -176,11 +178,13 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
     CollectionReference users = FirebaseFirestore.instance.collection('usuarios');
     QuerySnapshot querySnapshot = await users.get();
     querySnapshot.docs.forEach((doc) {
-      usersData.add({
-        'name': doc['nombre'] ?? '',
-        'photoUrl': '',
-        'uid': doc.id,
-      });
+      if (doc.id != usuarioActual.uid) {
+        usersData.add({
+          'name': doc['nombre'] ?? '',
+          'photoUrl': '',
+          'uid': doc.id,
+        });
+      }
     });
 
     // Mezclar la lista de usuarios para obtener un orden aleatorio
@@ -219,10 +223,10 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
 
   void swipeRight() async {
     String userName = usersData[currentPhotoIndex]['name'];
-    if (!widget.listaConversaciones.contains(userName)) {
+    if (!widget.listaConversaciones.contains(userName) && userName != usuarioActual.displayName) {
       widget.listaConversaciones.add(userName);
 
-      await agregarCampoListaConversaciones(FirebaseAuth.instance.currentUser!.uid, widget.listaConversaciones);
+      await agregarCampoListaConversaciones(usuarioActual.uid, widget.listaConversaciones);
 
       widget.updateConversations(userName);
     }

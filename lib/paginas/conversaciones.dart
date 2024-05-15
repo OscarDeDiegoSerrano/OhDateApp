@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ohdate_app/paginas/inicio.dart';
+import 'package:ohdate_app/paginas/pantalla_chat.dart';
 import 'package:ohdate_app/paginas/preferenciaBusqueda.dart';
 
 class Conversaciones extends StatelessWidget {
@@ -36,15 +37,45 @@ class Conversaciones extends StatelessWidget {
     }
   }
 
+  void crearSalaDeChat(BuildContext context, String nombreUsuario) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PaginaChat(nombreUsuario: nombreUsuario, idReceptor: '', emailAmbQuiParlem: '',),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Conversaciones'),
-        leading: Image.asset(
-          'lib/imatges/LogoOhDate.png',
-          width: 40,
-          height: 40,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Image.asset(
+              'lib/imatges/LogoOhDate.png',
+              width: 40,
+              height: 40,
+            ),
+            StreamBuilder<DocumentSnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('usuarios')
+                  .doc(usuarioActual.uid)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Text('Cargando...');
+                }
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
+                var userData = snapshot.data?.data() as Map<String, dynamic>? ?? {};
+                String nombreUsuario = userData['nombre'] ?? 'Usuario';
+                return Text('Hola, $nombreUsuario');
+              },
+            ),
+          ],
         ),
       ),
       body: StreamBuilder<List<String>>(
@@ -61,22 +92,42 @@ class Conversaciones extends StatelessWidget {
             itemCount: listaConversaciones.length,
             itemBuilder: (context, index) {
               String nombreUsuario = listaConversaciones[index];
-              return ListTile(
-                title: Text(nombreUsuario),
-                trailing: IconButton(
-                  icon: Icon(Icons.close),
-                  onPressed: () async {
-                    await eliminarUsuarioDeConversaciones(nombreUsuario);
-                  },
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Color.fromARGB(255, 238, 143, 206),
+                    borderRadius: BorderRadius.circular(10.0), // Ajusta el valor según tu preferencia
+                  ),
+                  child: ListTile(
+                    title: Text(nombreUsuario),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.chat),
+                          onPressed: () {
+                            crearSalaDeChat(context, nombreUsuario);
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.close),
+                          onPressed: () async {
+                            await eliminarUsuarioDeConversaciones(nombreUsuario);
+                          },
+                        ),
+                      ],
+                    ),
+                    onTap: () {
+                      // Redirige a la pantalla de chat al hacer clic en un usuario
+                      Navigator.pushNamed(
+                        context,
+                        '/pantalla_chat.dart',
+                        arguments: nombreUsuario,
+                      );
+                    },
+                  ),
                 ),
-                onTap: () {
-                  // Redirige a la pantalla de chat al hacer clic en un usuario
-                  Navigator.pushNamed(
-                    context,
-                    '/pantalla_chat.dart',
-                    arguments: nombreUsuario,
-                  );
-                },
               );
             },
           );

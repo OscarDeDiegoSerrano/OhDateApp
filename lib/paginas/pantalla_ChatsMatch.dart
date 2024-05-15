@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ohdate_app/paginas/conversaciones.dart';
 import 'package:ohdate_app/paginas/inicio.dart';
-import 'package:ohdate_app/paginas/pantalla_chat.dart';
 
 class PantallaChatsMatch extends StatelessWidget {
   @override
