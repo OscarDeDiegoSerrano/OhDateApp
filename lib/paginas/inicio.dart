@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -23,6 +25,7 @@ class _PaginaInicioState extends State<PaginaInicio> {
     // Obtener el nombre del usuario actual
     if (usuarioActual != null) {
       obtenerNombreUsuario();
+      obtenerListaConversaciones();
     }
   }
 
@@ -31,6 +34,14 @@ class _PaginaInicioState extends State<PaginaInicio> {
     DocumentSnapshot document = await FirebaseFirestore.instance.collection('usuarios').doc(usuarioActual!.uid).get();
     setState(() {
       nombre = document['nombre'];
+    });
+  }
+
+  // Función para obtener la lista de conversaciones del usuario desde Firestore
+  Future<void> obtenerListaConversaciones() async {
+    DocumentSnapshot document = await FirebaseFirestore.instance.collection('usuarios').doc(usuarioActual!.uid).get();
+    setState(() {
+      listaConversaciones = List<String>.from(document['listaConversaciones'] ?? []);
     });
   }
 
@@ -172,6 +183,9 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
       });
     });
 
+    // Mezclar la lista de usuarios para obtener un orden aleatorio
+    usersData.shuffle(Random());
+
     // Get users' photo URLs
     await getUsersPhotoUrls();
   }
@@ -204,71 +218,91 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
   }
 
   void swipeRight() async {
-    setState(() {
-      currentPhotoIndex = (currentPhotoIndex - 1 + usersData.length) % usersData.length;
-    });
-
     String userName = usersData[currentPhotoIndex]['name'];
     if (!widget.listaConversaciones.contains(userName)) {
       widget.listaConversaciones.add(userName);
 
-      await agregarCampoListaConversaciones('usuarios', widget.listaConversaciones);
+      await agregarCampoListaConversaciones(FirebaseAuth.instance.currentUser!.uid, widget.listaConversaciones);
 
       widget.updateConversations(userName);
     }
+
+    setState(() {
+      currentPhotoIndex = (currentPhotoIndex + 1) % usersData.length;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onPanUpdate: (details) {
-        final sensitivity = 20.0;
-        if (details.delta.dx.abs() > sensitivity) {
-          if (details.delta.dx > 0) {
-            swipeRight(); // Swipe to the right
-          } else if (details.delta.dx < 0) {
-            swipeLeft(); // Swipe to the left
-          }
-        }
-      },
-      child: Container(
-        margin: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          border: Border.all(color: const Color.fromARGB(255, 228, 139, 194)),
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(10.0),
-          child: SizedBox(
-            width: double.infinity,
-            height: double.infinity,
-            child: usersData.isEmpty
-                ? const Center(child: CircularProgressIndicator()) // Loading indicator while data is loading
-                : Stack(
-                    children: [
-                      Image.network(
-                        usersData[currentPhotoIndex]['photoUrl'],
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: double.infinity,
-                      ),
-                      Positioned(
-                        bottom: 10,
-                        left: 10,
-                        child: Text(
-                          usersData[currentPhotoIndex]['name'],
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
+    return Column(
+      children: [
+        Expanded(
+          child: GestureDetector(
+            onPanUpdate: (details) {
+              final sensitivity = 20.0;
+              if (details.delta.dx.abs() > sensitivity) {
+                if (details.delta.dx > 0) {
+                  swipeRight(); // Swipe to the right
+                } else if (details.delta.dx < 0) {
+                  swipeLeft(); // Swipe to the left
+                }
+              }
+            },
+            child: Container(
+              margin: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                border: Border.all(color: const Color.fromARGB(255, 228, 139, 194)),
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10.0),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: double.infinity,
+                  child: usersData.isEmpty
+                      ? const Center(child: CircularProgressIndicator()) // Loading indicator while data is loading
+                      : Stack(
+                          children: [
+                            Image.network(
+                              usersData[currentPhotoIndex]['photoUrl'],
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: double.infinity,
+                            ),
+                            Positioned(
+                              bottom: 10,
+                              left: 10,
+                              child: Text(
+                                usersData[currentPhotoIndex]['name'],
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
+                ),
+              ),
+            ),
           ),
         ),
-      ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.close, color: Colors.red, size: 40),
+              onPressed: swipeLeft,
+            ),
+            IconButton(
+              icon: const Icon(Icons.check, color: Colors.green, size: 40),
+              onPressed: swipeRight,
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+      ],
     );
   }
 }
