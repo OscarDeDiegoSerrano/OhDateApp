@@ -36,6 +36,7 @@ class _PaginaChatState extends State<PaginaChat> {
   void dispose() {
     focusNode.dispose();
     controllerMissatge.dispose();
+    controllerScroll.dispose();  // Dispose the scroll controller
     super.dispose();
   }
 
@@ -51,18 +52,22 @@ class _PaginaChatState extends State<PaginaChat> {
     });
 
     // Ens esperem un moment, i llavors movem cap a baix.
-    Future.delayed(
-      const Duration(milliseconds: 500),
-      () => ferScrollCapAvall(),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(
+        const Duration(milliseconds: 500),
+        () => ferScrollCapAvall(),
+      );
+    });
   }
 
   void ferScrollCapAvall() {
-    controllerScroll.animateTo(
-      controllerScroll.position.maxScrollExtent,
-      duration: const Duration(seconds: 1),
-      curve: Curves.fastOutSlowIn,
-    );
+    if (controllerScroll.hasClients) {
+      controllerScroll.animateTo(
+        controllerScroll.position.maxScrollExtent,
+        duration: const Duration(seconds: 1),
+        curve: Curves.fastOutSlowIn,
+      );
+    }
   }
 
   void enviarMissatge() async {
@@ -147,18 +152,18 @@ class _PaginaChatState extends State<PaginaChat> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 14.0), // Añadir padding horizontal
+          padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0), // Añadir padding horizontal
           child: Row(
             mainAxisAlignment: isCurrentUser ? MainAxisAlignment.end : MainAxisAlignment.start,
             children: [
               Text(
                 formattedTime,
-                style: const TextStyle(color: Color.fromARGB(255, 8, 8, 8), fontSize: 12.0),
+                style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0), fontSize: 12.0),
               ),
               const SizedBox(width: 4.0),
               Text(
                 formattedDate,
-                style: const TextStyle(color: Color.fromARGB(255, 2, 2, 2), fontSize: 12.0),
+                style: TextStyle(color: const Color.fromARGB(255, 2, 2, 2), fontSize: 12.0),
               ),
             ],
           ),

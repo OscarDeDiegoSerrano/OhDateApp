@@ -37,6 +37,7 @@ class Conversaciones extends StatelessWidget {
     }
   }
 
+
   Future<void> crearSalaDeChat(BuildContext context, String nombreUsuario) async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('usuarios')
