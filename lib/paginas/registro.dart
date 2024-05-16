@@ -26,6 +26,7 @@ class _RegisterFormState extends State<RegisterForm> {
   ServicioAutenticacion serveiAuth = ServicioAutenticacion();
 
   String? _selectedGender;
+  String? buscandoController;
   //File? _selectedImage; // Guarda la imagen seleccionada
 
   File? _imatgeSeleccionadaApp;
@@ -224,6 +225,26 @@ class _RegisterFormState extends State<RegisterForm> {
                               return null;
                             },
                           ),
+
+                          DropdownButtonFormField<String>(
+                            value: buscandoController,
+                            onChanged: (newValue) {
+                              setState(() {
+                                buscandoController = newValue;
+                              });
+                            },
+                            items: <String>['Amistad', 'Relacion']
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            decoration: const InputDecoration(
+                              labelText: 'Buscando',
+                            ),
+                          ),
+
                           const SizedBox(height: 20),
                           DropdownButtonFormField<String>(
                             value: _selectedGender,
@@ -243,7 +264,6 @@ class _RegisterFormState extends State<RegisterForm> {
                               labelText: 'Género',
                             ),
                           ),
-                          const SizedBox(height: 20),
 
                           ElevatedButton(
                             onPressed: _triaImatge,
@@ -269,7 +289,7 @@ class _RegisterFormState extends State<RegisterForm> {
                           ElevatedButton(
                             onPressed: () async {
                               if (_formKey.currentState!.validate()) {
-                                if (_selectedGender != null) {
+                                if (_selectedGender != null || buscandoController != null) {
                                   try {
                                     if (true) {
                                       // La imagen se subió correctamente, ahora registrar usuario en Firebase Authentication y Firestore
@@ -279,7 +299,8 @@ class _RegisterFormState extends State<RegisterForm> {
                                         nombreController.text,
                                         apellidoController.text,
                                         telefonoController.text,
-                                        _selectedGender!
+                                        _selectedGender!,
+                                        buscandoController!,
                                       );
 
                                       if (result == null) {
@@ -292,7 +313,6 @@ class _RegisterFormState extends State<RegisterForm> {
                                       }
                                     }
 
-                                    bool imatgePujada = await pujarImatgePerUsuari();
                                   } catch (e) {
                                     print('Error al registrar usuario: $e');
                                   }

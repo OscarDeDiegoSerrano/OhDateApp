@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ohdate_app/paginas/conversaciones.dart';
 import 'package:ohdate_app/paginas/inicio.dart';
-import 'package:ohdate_app/paginas/pantalla_ChatsMatch.dart';
 
 class PreferenciaBusqueda extends StatefulWidget {
   @override
@@ -12,7 +10,7 @@ class _PreferenciaBusquedaState extends State<PreferenciaBusqueda> {
   final _formKey = GlobalKey<FormState>();
 
   String? generoSeleccionado;
-  String distanciaSeleccionada = '1 km';
+  String objetivosSeleccionados = 'Pareja'; // Cambiado de 'Seria' a 'Pareja'
   RangeValues rangoEdadSeleccionado = const RangeValues(18, 60);
 
   @override
@@ -35,7 +33,7 @@ class _PreferenciaBusquedaState extends State<PreferenciaBusqueda> {
                     generoSeleccionado = newValue!;
                   });
                 },
-                items: <String>['Hombre', 'Mujer']
+                items: <String>['Hombre', 'Mujer', 'Ambos']
                     .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
@@ -43,17 +41,17 @@ class _PreferenciaBusquedaState extends State<PreferenciaBusqueda> {
                   );
                 }).toList(),
                 decoration: const InputDecoration(
-                  labelText: 'Género',
+                  labelText: 'Buscando...',
                 ),
               ),
               DropdownButtonFormField<String>(
-                value: distanciaSeleccionada,
+                value: objetivosSeleccionados,
                 onChanged: (newValue) {
                   setState(() {
-                    distanciaSeleccionada = newValue!;
+                    objetivosSeleccionados = newValue!;
                   });
                 },
-                items: <String>['1 km', '5 km', '10 km', '20 km']
+                items: <String>['Pareja', 'Amistad']
                     .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
@@ -61,7 +59,7 @@ class _PreferenciaBusquedaState extends State<PreferenciaBusqueda> {
                   );
                 }).toList(),
                 decoration: const InputDecoration(
-                  labelText: 'Distancia (hasta)',
+                  labelText: 'Buscas',
                 ),
               ),
               const SizedBox(height: 20),
@@ -98,10 +96,6 @@ class _PreferenciaBusquedaState extends State<PreferenciaBusqueda> {
               ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    // Aquí puedes realizar la acción de guardar las preferencias de búsqueda
-                    // por ejemplo, podrías guardar los valores en la base de datos
-                    // o utilizarlos para filtrar resultados
-                    // Aquí solo muestro un mensaje de éxito y retorno a la página de inicio
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Preferencias guardadas con éxito')),
                     );
@@ -109,42 +103,6 @@ class _PreferenciaBusquedaState extends State<PreferenciaBusqueda> {
                   }
                 },
                 child: const Text('Guardar Preferencias'),
-              ),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: Positioned(
-        left: 0,
-        right: 0,
-        bottom: 0,
-        child: BottomAppBar(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.chat),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Conversaciones()),
-                  );
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.home),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => PaginaInicio()),
-                  );
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.settings),
-                onPressed: () {
-                  // Acción al presionar el botón de ajustes
-                },
               ),
             ],
           ),
