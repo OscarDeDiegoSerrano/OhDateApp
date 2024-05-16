@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ohdate_app/servicios/servicio_autentificacion.dart';
 
-class ModificarDatosUsuario extends StatelessWidget {
+class ModificarDatosUsuario extends StatefulWidget {
+  @override
+  _ModificarDatosUsuarioState createState() => _ModificarDatosUsuarioState();
+}
+
+class _ModificarDatosUsuarioState extends State
+{
   final _formKey = GlobalKey<FormState>();
   TextEditingController _nombreController = TextEditingController();
   TextEditingController _apellidoController = TextEditingController();
@@ -8,23 +16,55 @@ class ModificarDatosUsuario extends StatelessWidget {
   TextEditingController _emailController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    // Obtener datos del usuario actual y establecerlos en los controladores de texto
+    _cargarDatosUsuario();
+  }
+
+  Future<void> _cargarDatosUsuario() async {
+    try {
+      // Obtener el ID del usuario actual
+      String idUsuarioActual = ServicioAutenticacion().getUsuariActual()!.uid;
+
+      // Obtener los datos del usuario actual desde Firestore
+      DocumentSnapshot usuarioSnapshot = await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(idUsuarioActual)
+          .get();
+
+      // Extraer los datos del usuario
+      Map<String, dynamic> datosUsuario = usuarioSnapshot.data() as Map<String, dynamic>;
+
+      // Establecer los valores en los controladores de texto
+      _nombreController.text = datosUsuario['nombre'] ?? '';
+      _apellidoController.text = datosUsuario['apellido'] ?? '';
+      _telefonoController.text = datosUsuario['telefono'] ?? '';
+      _emailController.text = datosUsuario['email'] ?? '';
+    } catch (error) {
+      print('Error al cargar los datos del usuario: $error');
+      // Manejar el error según sea necesario
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context); // Retornar a la página anterior
           },
         ),
-        title: Text('Modificar Datos'), // Título de la AppBar
+        title: const Text('Modificar Datos'), // Título de la AppBar
       ),
       body: Stack(
         children: [
           // Fondo
           Positioned.fill(
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 image: DecorationImage(
                   image: AssetImage("lib/imatges/fondo.jpg"),
                   fit: BoxFit.cover,
@@ -45,10 +85,10 @@ class ModificarDatosUsuario extends StatelessWidget {
                       fit: BoxFit.contain,
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Container(
                     width: MediaQuery.of(context).size.width * 0.8,
-                    padding: EdgeInsets.all(20.0),
+                    padding: const EdgeInsets.all(20.0),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20.0),
@@ -57,14 +97,14 @@ class ModificarDatosUsuario extends StatelessWidget {
                           color: Colors.black.withOpacity(0.3),
                           spreadRadius: 3,
                           blurRadius: 7,
-                          offset: Offset(0, 3),
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text(
+                        const Text(
                           'Modificar datos',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
@@ -72,7 +112,7 @@ class ModificarDatosUsuario extends StatelessWidget {
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         Form(
                           key: _formKey,
                           child: Column(
@@ -80,7 +120,7 @@ class ModificarDatosUsuario extends StatelessWidget {
                             children: <Widget>[
                               TextFormField(
                                 controller: _nombreController,
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   labelText: 'Nombre',
                                   filled: true,
                                 ),
@@ -93,7 +133,7 @@ class ModificarDatosUsuario extends StatelessWidget {
                               ),
                               TextFormField(
                                 controller: _apellidoController,
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   labelText: 'Apellido',
                                   filled: true,
                                 ),
@@ -106,7 +146,7 @@ class ModificarDatosUsuario extends StatelessWidget {
                               ),
                               TextFormField(
                                 controller: _telefonoController,
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   labelText: 'Teléfono',
                                   filled: true,
                                 ),
@@ -119,7 +159,7 @@ class ModificarDatosUsuario extends StatelessWidget {
                               ),
                               TextFormField(
                                 controller: _emailController,
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   labelText: 'Correo electrónico',
                                   filled: true,
                                 ),
@@ -130,25 +170,49 @@ class ModificarDatosUsuario extends StatelessWidget {
                                   return null;
                                 },
                               ),
-                              SizedBox(height: 20),
+                              const SizedBox(height: 20),
                             ],
                           ),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         ElevatedButton(
                           onPressed: () {
-                            // Aquí puedes agregar la lógica para guardar los datos
+                            if (_formKey.currentState!.validate()) {
+                              // Obtener los valores de los campos de texto
+                              String nombre = _nombreController.text;
+                              String apellido = _apellidoController.text;
+                              String telefono = _telefonoController.text;
+                              String email = _emailController.text;
+
+                              String idUsuarioActual = ServicioAutenticacion().getUsuariActual()!.uid;
+
+                              // Modificar los datos en la base de datos
+                              FirebaseFirestore.instance
+                                  .collection('usuarios')
+                                  .doc(idUsuarioActual)
+                                  .update({
+                                'nombre': nombre,
+                                'apellido': apellido,
+                                'telefono': telefono,
+                                'email': email,
+                              }).then((_) {
+                                // Si la actualización es correcta, muestra un mensaje
+                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                  content: Text('Datos actualizados correctamente'),
+                                  duration: const Duration(seconds: 2),
+                                ));
+                              }).catchError((error) {
+                                // Si hay un error, muestra mensaje de error
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                  content: Text('Error al actualizar los datos: $error'),
+                                  duration: const Duration(seconds: 2),
+                                ));
+                              });
+                            }
                           },
-                          child: Text('Aplicar'),
+                          child: const Text('Aplicar'),
                         ),
-                        SizedBox(height: 10),
-                        ElevatedButton(
-                          onPressed: () {
-                            // Implementar la navegación a la pantalla de preferencias de búsqueda aquí
-                            // Navigator.push(context, MaterialPageRoute(builder: (context) => SearchPreferencesPage()));
-                          },
-                          child: Text('Preferencias de búsqueda'),
-                        ),
+                        const SizedBox(height: 10),
                       ],
                     ),
                   ),
