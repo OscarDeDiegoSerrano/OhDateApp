@@ -1,8 +1,5 @@
-import 'dart:typed_data';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 
 class ServicioAutenticacion {
@@ -17,23 +14,6 @@ class ServicioAutenticacion {
       password: password,
     );
 
-    // Subir imagen de perfil a Firebase Storage
-    /*if (imageUrl != null) {
-      //String imageName = email.replaceAll('@', '_').replaceAll('.', '_') + '.jpg'; // Nombre de la imagen basado en el correo electrónico
-      //firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance.ref('imagenes/$imageName');
-
-
-      // Guardar datos adicionales en Firestore
-      await _firestore.collection('usuarios').doc(userCredential.user!.uid).set({
-        'email': email,
-        'password': password,
-        'nombre': nombre,
-        'apellido': apellido,
-        'telefono': telefono,
-        'sexo': sexo, // Nuevo campo para guardar el sexo
-      });
-    } else {*/
-      // Guardar datos adicionales en Firestore sin la imagen
       await _firestore.collection('usuarios').doc(userCredential.user!.uid).set({
         'email': email,
         'password': password,

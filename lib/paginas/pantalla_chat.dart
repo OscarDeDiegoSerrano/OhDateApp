@@ -107,14 +107,14 @@ class _PaginaChatState extends State<PaginaChat> {
       stream: _serveiChat.getMissatges(idUsuariActual, widget.idReceptor, widget.salaId),  // Pasar el ID de la sala
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return Text("Error cargando mensajes.");
+          return const Text("Error cargando mensajes.");
         }
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
         final data = snapshot.data;
         if (data == null || data.docs.isEmpty) {
-          return Center(child: Text("No hay mensajes."));
+          return const Center(child: Text("No hay mensajes."));
         }
         return ListView.builder(
           controller: controllerScroll,
@@ -123,22 +123,47 @@ class _PaginaChatState extends State<PaginaChat> {
             final DocumentSnapshot document = data.docs[index];
             final Map<String, dynamic> messageData = document.data() as Map<String, dynamic>;
             final bool isCurrentUser = messageData["idAutor"] == idUsuariActual;
-            return _construirItemMissatge(messageData["missatge"], isCurrentUser);
+            final Timestamp timestamp = messageData["timestamp"];
+            return _construirItemMissatge(messageData["missatge"], isCurrentUser, timestamp);
           },
         );
       },
     );
   }
 
-  Widget _construirItemMissatge(String message, bool isCurrentUser) {
+  Widget _construirItemMissatge(String message, bool isCurrentUser, Timestamp timestamp) {
     var aliniament = isCurrentUser ? Alignment.centerRight : Alignment.centerLeft;
-    var colorBombolla = isCurrentUser ? Color.fromARGB(255, 236, 116, 210) : const Color.fromARGB(255, 255, 255, 255);
-    return Container(
-      alignment: aliniament,
-      child: BombollaMissatge(
-        colorBombolla: colorBombolla ?? Colors.black,
-        missatge: message,
-      ),
+    var colorBombolla = isCurrentUser ? const Color.fromARGB(255, 236, 116, 210) : const Color.fromARGB(255, 255, 255, 255);
+    var formattedTime = "${timestamp.toDate().hour}:${timestamp.toDate().minute}";
+    var formattedDate = "${timestamp.toDate().day}/${timestamp.toDate().month}/${timestamp.toDate().year}";
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          alignment: aliniament,
+          child: BombollaMissatge(
+            colorBombolla: colorBombolla ?? Colors.black,
+            missatge: message,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 14.0), // Añadir padding horizontal
+          child: Row(
+            mainAxisAlignment: isCurrentUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+            children: [
+              Text(
+                formattedTime,
+                style: const TextStyle(color: Color.fromARGB(255, 8, 8, 8), fontSize: 12.0),
+              ),
+              const SizedBox(width: 4.0),
+              Text(
+                formattedDate,
+                style: const TextStyle(color: Color.fromARGB(255, 2, 2, 2), fontSize: 12.0),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -150,27 +175,28 @@ class _PaginaChatState extends State<PaginaChat> {
           Expanded(
             child: TextField(
               controller: controllerMissatge,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 fillColor: Color.fromARGB(255, 255, 255, 255),
                 filled: true,
                 hintText: "Escriu el missatge...",
-                ),
-                ),
-                ),
-                const SizedBox(
-                width: 10,
-                ),
-                IconButton(
-                style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(
-                Color.fromARGB(255, 228, 88, 233)),
-                ),
-                icon: const Icon(Icons.send),
-                color: Colors.white,
-                onPressed: enviarMissatge,
-                ),
-        ],
               ),
-                );
-                }
-                }
+            ),
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          IconButton(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(
+                const Color.fromARGB(255, 228, 88, 233),
+              ),
+            ),
+            icon: const Icon(Icons.send),
+            color: Colors.white,
+            onPressed: enviarMissatge,
+          ),
+        ],
+      ),
+    );
+  }
+}

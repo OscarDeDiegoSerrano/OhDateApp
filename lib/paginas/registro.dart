@@ -245,7 +245,6 @@ class _RegisterFormState extends State<RegisterForm> {
                           ),
                           const SizedBox(height: 20),
 
-                          
                           ElevatedButton(
                             onPressed: _triaImatge,
                             style: ElevatedButton.styleFrom(
@@ -255,7 +254,6 @@ class _RegisterFormState extends State<RegisterForm> {
                             child: const Text("Tria imatge"),
                           ),
 
-                          
                           Container(
                             height: 100,
                             width: 100,
@@ -273,10 +271,6 @@ class _RegisterFormState extends State<RegisterForm> {
                               if (_formKey.currentState!.validate()) {
                                 if (_selectedGender != null) {
                                   try {
-                                    // Subir imagen de perfil a Firebase Storage
-                                    
-
-                                    // Verificar si la imagen se subió correctamente
                                     if (true) {
                                       // La imagen se subió correctamente, ahora registrar usuario en Firebase Authentication y Firestore
                                       String? result = await serveiAuth.registrarUsuario(
@@ -296,9 +290,6 @@ class _RegisterFormState extends State<RegisterForm> {
                                         // Puedes mostrar un mensaje de error al usuario
                                         print('Error durante el registro: $result');
                                       }
-                                    } else {
-                                      // La imagen no se subió correctamente, mostrar mensaje de error
-                                      print('Error al subir la imagen a Firebase Storage');
                                     }
 
                                     bool imatgePujada = await pujarImatgePerUsuari();
