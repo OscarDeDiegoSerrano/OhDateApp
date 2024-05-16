@@ -22,6 +22,7 @@ class _RegisterFormState extends State<RegisterForm> {
   TextEditingController emailController = TextEditingController();
   TextEditingController telefonoController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController edadController = TextEditingController();
 
   ServicioAutenticacion serveiAuth = ServicioAutenticacion();
 
@@ -224,6 +225,19 @@ class _RegisterFormState extends State<RegisterForm> {
                               return null;
                             },
                           ),
+                          TextFormField(
+                            controller: edadController,
+                            decoration: const InputDecoration(
+                              labelText: 'Edad',
+                            ),
+                            keyboardType: TextInputType.number,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Por favor ingrese su edad';
+                              }
+                              return null;
+                            },
+                          ),
                           const SizedBox(height: 20),
                           DropdownButtonFormField<String>(
                             value: _selectedGender,
@@ -279,7 +293,8 @@ class _RegisterFormState extends State<RegisterForm> {
                                         nombreController.text,
                                         apellidoController.text,
                                         telefonoController.text,
-                                        _selectedGender!
+                                        _selectedGender!,
+                                        edadController.text, // Añade el valor de la edad
                                       );
 
                                       if (result == null) {
