@@ -5,22 +5,24 @@ import 'package:ohdate_app/components/bombolla_missatge.dart';
 import 'package:ohdate_app/servicios/servei_chat.dart';
 
 class PaginaChat extends StatefulWidget {
-
   final String emailAmbQuiParlem;
   final String idReceptor;
+  final String nombreUsuario;
+  final String salaId;  // Agregar este parámetro
 
   const PaginaChat({
-    super.key,
+    Key? key,
     required this.emailAmbQuiParlem,
-    required this.idReceptor, required String nombreUsuario,
-  });
+    required this.idReceptor,
+    required this.nombreUsuario,
+    required this.salaId,  // Agregar este parámetro
+  }) : super(key: key);
 
   @override
   State<PaginaChat> createState() => _PaginaChatState();
 }
 
 class _PaginaChatState extends State<PaginaChat> {
-
   final TextEditingController controllerMissatge = TextEditingController();
   final ScrollController controllerScroll = ScrollController();
 
@@ -32,10 +34,8 @@ class _PaginaChatState extends State<PaginaChat> {
 
   @override
   void dispose() {
-
     focusNode.dispose();
     controllerMissatge.dispose();
-
     super.dispose();
   }
 
@@ -43,41 +43,39 @@ class _PaginaChatState extends State<PaginaChat> {
   void initState() {
     super.initState();
 
-    focusNode.addListener(() { 
+    focusNode.addListener(() {
       Future.delayed(
         const Duration(milliseconds: 500),
-        () => ferScrollCapAvall(), 
+        () => ferScrollCapAvall(),
       );
     });
 
     // Ens esperem un moment, i llavors movem cap a baix.
     Future.delayed(
       const Duration(milliseconds: 500),
-      () => ferScrollCapAvall(), 
+      () => ferScrollCapAvall(),
     );
   }
 
   void ferScrollCapAvall() {
-
     controllerScroll.animateTo(
-      controllerScroll.position.maxScrollExtent, 
-      duration: const Duration(seconds: 1), 
-      curve: Curves.fastOutSlowIn, 
+      controllerScroll.position.maxScrollExtent,
+      duration: const Duration(seconds: 1),
+      curve: Curves.fastOutSlowIn,
     );
   }
 
   void enviarMissatge() async {
-
     if (controllerMissatge.text.isNotEmpty) {
-
       // Enviar el missatge.
       await _serveiChat.enviarMissatge(
-        widget.idReceptor, 
-        controllerMissatge.text);
+        widget.idReceptor,
+        controllerMissatge.text,
+        widget.salaId,  // Pasar el ID de la sala
+      );
 
       // Netejar el camp.
       controllerMissatge.clear();
-
     }
     ferScrollCapAvall();
   }
@@ -103,52 +101,43 @@ class _PaginaChatState extends State<PaginaChat> {
   }
 
   Widget _construirLlistaMissatges() {
-
     String idUsuariActual = ServicioAutenticacion().getUsuariActual()!.uid;
 
-    return StreamBuilder(
-      stream: _serveiChat.getMissatges(idUsuariActual, widget.idReceptor), 
-      builder: (context, snapshot){
-
-        // Cas que hi hagi error.
+    return StreamBuilder<QuerySnapshot>(
+      stream: _serveiChat.getMissatges(idUsuariActual, widget.idReceptor, widget.salaId),  // Pasar el ID de la sala
+      builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return const Text("Error carregant missatges.");
+          return Text("Error cargando mensajes.");
         }
-
-        // Estar encara carregant.
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Text("Carregant...");
+          return Center(child: CircularProgressIndicator());
         }
-
-        // Retornar dades (ListView).
-        return ListView(
+        final data = snapshot.data;
+        if (data == null || data.docs.isEmpty) {
+          return Center(child: Text("No hay mensajes."));
+        }
+        return ListView.builder(
           controller: controllerScroll,
-          children: snapshot.data!.docs.map((document) => _construirItemMissatge(document)).toList(),
+          itemCount: data.docs.length,
+          itemBuilder: (context, index) {
+            final DocumentSnapshot document = data.docs[index];
+            final Map<String, dynamic> messageData = document.data() as Map<String, dynamic>;
+            final bool isCurrentUser = messageData["idAutor"] == idUsuariActual;
+            return _construirItemMissatge(messageData["missatge"], isCurrentUser);
+          },
         );
-
       },
     );
   }
 
-  Widget _construirItemMissatge(DocumentSnapshot documentSnapshot){
-    
-
-    // final data = document... (altra opció).
-    Map<String, dynamic> data = documentSnapshot.data() as Map<String, dynamic>;
-
-    // Saber si el mostrem a l'esquerra o a la dreta.
-
-    // Si és usuari acutal.
-    bool esUsuariActual = data["nombre"] == ServicioAutenticacion().getUsuariActual()!.uid;
-
-    // (Operador ternari).
-    var aliniament = esUsuariActual ? Alignment.centerRight : Alignment.centerLeft;
-    var colorBombolla = esUsuariActual ? Colors.green[200] : Colors.amber[200];
+  Widget _construirItemMissatge(String message, bool isCurrentUser) {
+    var aliniament = isCurrentUser ? Alignment.centerRight : Alignment.centerLeft;
+    var colorBombolla = isCurrentUser ? Color.fromARGB(255, 236, 116, 210) : const Color.fromARGB(255, 255, 255, 255);
     return Container(
       alignment: aliniament,
       child: BombollaMissatge(
-        colorBombolla: colorBombolla??Colors.black,
-        missatge: data["missatge"],
+        colorBombolla: colorBombolla ?? Colors.black,
+        missatge: message,
       ),
     );
   }
@@ -165,20 +154,23 @@ class _PaginaChatState extends State<PaginaChat> {
                 fillColor: Color.fromARGB(255, 255, 255, 255),
                 filled: true,
                 hintText: "Escriu el missatge...",
-              ),
-            ),
-          ),
-          const SizedBox(width: 10,),
-          IconButton(
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(Color.fromARGB(255, 228, 88, 233)),
-            ),
-            icon: const Icon(Icons.send),
-            color: Colors.white,
-            onPressed: enviarMissatge, 
-          ),
+                ),
+                ),
+                ),
+                const SizedBox(
+                width: 10,
+                ),
+                IconButton(
+                style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(
+                Color.fromARGB(255, 228, 88, 233)),
+                ),
+                icon: const Icon(Icons.send),
+                color: Colors.white,
+                onPressed: enviarMissatge,
+                ),
         ],
-      ),
-    );
-  }
-}
+              ),
+                );
+                }
+                }

@@ -4,11 +4,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ohdate_app/paginas/inicio.dart';
 import 'package:ohdate_app/paginas/pantalla_chat.dart';
 import 'package:ohdate_app/paginas/preferenciaBusqueda.dart';
+import 'package:ohdate_app/servicios/servei_chat.dart';
 
 class Conversaciones extends StatelessWidget {
   final User usuarioActual = FirebaseAuth.instance.currentUser!;
 
-  // Función para obtener la lista de nombres de usuarios desde Firestore
   Stream<List<String>> obtenerNombresUsuarios() {
     return FirebaseFirestore.instance
         .collection('usuarios')
@@ -37,13 +37,32 @@ class Conversaciones extends StatelessWidget {
     }
   }
 
-  void crearSalaDeChat(BuildContext context, String nombreUsuario) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PaginaChat(nombreUsuario: nombreUsuario, idReceptor: '', emailAmbQuiParlem: '',),
-      ),
-    );
+  Future<void> crearSalaDeChat(BuildContext context, String nombreUsuario) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('usuarios')
+        .where('nombre', isEqualTo: nombreUsuario)
+        .limit(1)
+        .get();
+    if (querySnapshot.docs.isNotEmpty) {
+      DocumentSnapshot receptorDoc = querySnapshot.docs.first;
+      String idReceptor = receptorDoc.id;
+      String emailReceptor = receptorDoc['email'];
+
+      ServeiChat serveiChat = ServeiChat();
+      String salaId = await serveiChat.crearNovaSalaDeChat(idReceptor);
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PaginaChat(
+            emailAmbQuiParlem: emailReceptor,
+            idReceptor: idReceptor,
+            nombreUsuario: nombreUsuario,
+            salaId: salaId,
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -97,7 +116,7 @@ class Conversaciones extends StatelessWidget {
                 child: Container(
                   decoration: BoxDecoration(
                     color: Color.fromARGB(255, 238, 143, 206),
-                    borderRadius: BorderRadius.circular(10.0), // Ajusta el valor según tu preferencia
+                    borderRadius: BorderRadius.circular(10.0),
                   ),
                   child: ListTile(
                     title: Text(nombreUsuario),
@@ -119,7 +138,6 @@ class Conversaciones extends StatelessWidget {
                       ],
                     ),
                     onTap: () {
-                      // Redirige a la pantalla de chat al hacer clic en un usuario
                       Navigator.pushNamed(
                         context,
                         '/pantalla_chat.dart',
