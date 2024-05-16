@@ -1,7 +1,13 @@
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:ohdate_app/auth/servicio_autentificacion.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:ohdate_app/servicios/servicio_autentificacion.dart';
 import 'package:ohdate_app/paginas/inicio.dart';
 import 'package:ohdate_app/paginas/login.dart';
+
 
 class RegisterForm extends StatefulWidget {
   @override
@@ -17,6 +23,87 @@ class _RegisterFormState extends State<RegisterForm> {
   TextEditingController telefonoController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
+  ServicioAutenticacion serveiAuth = ServicioAutenticacion();
+
+  String? _selectedGender;
+  //File? _selectedImage; // Guarda la imagen seleccionada
+
+  File? _imatgeSeleccionadaApp;
+  Uint8List? _imatgeSeleccionadaWeb;
+
+  Future<void> _triaImatge() async {
+
+    final ImagePicker picker = ImagePicker();
+    XFile? imatge = await picker.pickImage(source: ImageSource.gallery);
+
+    // Si trien i trobem la imatge.
+    if (imatge != null) {
+
+      // Si l'App s'executa en un dispositiu mòbil.
+      if (!kIsWeb) {
+
+        File arxiuSeleccionat = File(imatge.path);
+        
+        setState(() {
+          _imatgeSeleccionadaApp = arxiuSeleccionat;
+        });
+        
+      }
+
+      // Si l'App s'executa en un navegador web.
+      if (kIsWeb) {
+        Uint8List arxiuEnBytes = await imatge.readAsBytes();
+
+        setState(() {
+          _imatgeSeleccionadaWeb = arxiuEnBytes;
+        });
+      }
+    }
+
+  }
+
+  Future<bool> pujarImatgePerUsuari() async {
+  // Obtén el usuario actual de manera segura
+  final usuarioActual = serveiAuth.getUsuariActual();
+  if (usuarioActual == null) {
+    // Manejar el caso en que el usuario actual es nulo
+    print("No encuentra usaurio");
+    return false;
+  }
+
+  String idUsuari = usuarioActual.uid;
+  Reference ref = FirebaseStorage.instance.ref().child("$idUsuari/avatar/$idUsuari");
+
+  // Agafem la imatge de la variable que la tingui (la de web o la de App).
+  if (_imatgeSeleccionadaApp != null) {
+    try {
+      await ref.putFile(_imatgeSeleccionadaApp!);
+      return true;
+    } catch (e) {
+      // Manejar cualquier error que ocurra durante la carga del archivo
+      print(e.toString());
+      return false;
+    }
+  }
+
+  if (_imatgeSeleccionadaWeb != null) {
+    try {
+      await ref.putData(_imatgeSeleccionadaWeb!);
+      return true;
+    } catch (e) {
+      // Manejar cualquier error que ocurra durante la carga de datos
+      print(e.toString());
+      return false;
+    }
+  }
+
+  // Manejar el caso en que ambas imágenes sean nulas
+  return false;
+}
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +112,7 @@ class _RegisterFormState extends State<RegisterForm> {
           // Fondo
           Positioned.fill(
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 image: DecorationImage(
                   image: AssetImage("lib/imatges/fondo.jpg"),
                   fit: BoxFit.cover,
@@ -46,10 +133,10 @@ class _RegisterFormState extends State<RegisterForm> {
                       fit: BoxFit.contain,
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Container(
                     width: MediaQuery.of(context).size.width * 0.8,
-                    padding: EdgeInsets.all(20.0),
+                    padding: const EdgeInsets.all(20.0),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20.0),
@@ -58,7 +145,7 @@ class _RegisterFormState extends State<RegisterForm> {
                           color: Colors.black.withOpacity(0.3),
                           spreadRadius: 3,
                           blurRadius: 7,
-                          offset: Offset(0, 3),
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
@@ -67,7 +154,7 @@ class _RegisterFormState extends State<RegisterForm> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text(
+                          const Text(
                             '¡Únete a nosotros!',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
@@ -75,10 +162,10 @@ class _RegisterFormState extends State<RegisterForm> {
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           TextFormField(
                             controller: nombreController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Nombre',
                             ),
                             validator: (value) {
@@ -90,7 +177,7 @@ class _RegisterFormState extends State<RegisterForm> {
                           ),
                           TextFormField(
                             controller: apellidoController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Apellido',
                             ),
                             validator: (value) {
@@ -102,7 +189,7 @@ class _RegisterFormState extends State<RegisterForm> {
                           ),
                           TextFormField(
                             controller: emailController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Correo electrónico',
                             ),
                             validator: (value) {
@@ -114,7 +201,7 @@ class _RegisterFormState extends State<RegisterForm> {
                           ),
                           TextFormField(
                             controller: telefonoController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Teléfono',
                             ),
                             validator: (value) {
@@ -126,7 +213,7 @@ class _RegisterFormState extends State<RegisterForm> {
                           ),
                           TextFormField(
                             controller: passwordController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Contraseña',
                             ),
                             obscureText: true,
@@ -137,7 +224,89 @@ class _RegisterFormState extends State<RegisterForm> {
                               return null;
                             },
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
+                          DropdownButtonFormField<String>(
+                            value: _selectedGender,
+                            onChanged: (newValue) {
+                              setState(() {
+                                _selectedGender = newValue;
+                              });
+                            },
+                            items: <String>['Masculino', 'Femenino']
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            decoration: const InputDecoration(
+                              labelText: 'Género',
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+
+                          ElevatedButton(
+                            onPressed: _triaImatge,
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.all(10),
+                              primary: Color.fromARGB(255, 236, 144, 229),
+                            ),
+                            child: const Text("Tria imatge"),
+                          ),
+
+                          Container(
+                            height: 100,
+                            width: 100,
+                            child: _imatgeSeleccionadaWeb == null && _imatgeSeleccionadaApp == null ? 
+                              Container() : 
+                              kIsWeb ? 
+                              Image.memory(_imatgeSeleccionadaWeb!, fit: BoxFit.fill,) :
+                              Image.file(_imatgeSeleccionadaApp!, fit: BoxFit.fill,),
+                          ),
+
+
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate()) {
+                                if (_selectedGender != null) {
+                                  try {
+                                    if (true) {
+                                      // La imagen se subió correctamente, ahora registrar usuario en Firebase Authentication y Firestore
+                                      String? result = await serveiAuth.registrarUsuario(
+                                        emailController.text,
+                                        passwordController.text,
+                                        nombreController.text,
+                                        apellidoController.text,
+                                        telefonoController.text,
+                                        _selectedGender!
+                                      );
+
+                                      if (result == null) {
+                                        // Registro exitoso
+                                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => PaginaInicio()));
+                                      } else {
+                                        // Manejar el error si ocurrió durante el registro
+                                        // Puedes mostrar un mensaje de error al usuario
+                                        print('Error durante el registro: $result');
+                                      }
+                                    }
+
+                                    bool imatgePujada = await pujarImatgePerUsuari();
+                                  } catch (e) {
+                                    print('Error al registrar usuario: $e');
+                                  }
+                                } else {
+                                  // El usuario no seleccionó género o imagen
+                                  // Puedes mostrar un mensaje para que seleccione ambos
+                                  print('Por favor seleccione género e imagen de perfil.');
+                                }
+                              }
+                            },
+                            child: const Text('Registrarse'),
+                          ),
+
+                          const SizedBox(height: 20),
                           ElevatedButton(
                             onPressed: () {
                               Navigator.push(
@@ -145,22 +314,7 @@ class _RegisterFormState extends State<RegisterForm> {
                                 MaterialPageRoute(builder: (context) => IniciarSesion()),
                               );
                             },
-                            child: Text('¿Ya tienes una cuenta?'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () async {
-                              if (_formKey.currentState!.validate()) {
-                                ServicioAutenticacion().registrarUsuario(
-                                  emailController.text,
-                                  passwordController.text,
-                                  nombreController.text,
-                                  apellidoController.text,
-                                  telefonoController.text,
-                                );
-                                Navigator.of(context).push(MaterialPageRoute(builder: (context) => PaginaInicio()));
-                              }
-                            },
-                            child: Text('Registrarse'),
+                            child: const Text('¿Ya tienes una cuenta?'),
                           ),
                         ],
                       ),
