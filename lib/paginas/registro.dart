@@ -248,8 +248,7 @@ class _RegisterFormState extends State<RegisterForm> {
                           ElevatedButton(
                             onPressed: _triaImatge,
                             style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.all(10),
-                              primary: Color.fromARGB(255, 236, 144, 229),
+                              padding: const EdgeInsets.all(10), backgroundColor: const Color.fromARGB(255, 236, 144, 229),
                             ),
                             child: const Text("Tria imatge"),
                           ),
