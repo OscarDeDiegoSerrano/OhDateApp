@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -22,14 +21,12 @@ class _PaginaInicioState extends State<PaginaInicio> {
   @override
   void initState() {
     super.initState();
-    // Obtener el nombre del usuario actual
     if (usuarioActual != null) {
       obtenerNombreUsuario();
       obtenerListaConversaciones();
     }
   }
 
-  // Función para obtener el nombre del usuario desde Firestore
   Future<void> obtenerNombreUsuario() async {
     DocumentSnapshot document = await FirebaseFirestore.instance.collection('usuarios').doc(usuarioActual!.uid).get();
     setState(() {
@@ -37,7 +34,6 @@ class _PaginaInicioState extends State<PaginaInicio> {
     });
   }
 
-  // Función para obtener la lista de conversaciones del usuario desde Firestore
   Future<void> obtenerListaConversaciones() async {
     DocumentSnapshot document = await FirebaseFirestore.instance.collection('usuarios').doc(usuarioActual!.uid).get();
     setState(() {
@@ -45,7 +41,6 @@ class _PaginaInicioState extends State<PaginaInicio> {
     });
   }
 
-  // Callback function to update the list of conversations
   void updateConversations(String userName) {
     setState(() {
       listaConversaciones.add(userName);
@@ -68,15 +63,14 @@ class _PaginaInicioState extends State<PaginaInicio> {
             itemBuilder: (BuildContext context) {
               return [
                 PopupMenuItem(
-                  child: Text("Hola, $nombre"), // Mostrar el nombre de usuario aquí
+                  child: Text("Hola, $nombre"),
                   enabled: false,
                 ),
                 PopupMenuItem(
                   child: ListTile(
-                    leading: const Icon(Icons.account_circle), // Icono de perfil
+                    leading: const Icon(Icons.account_circle),
                     title: const Text('Perfil'),
                     onTap: () {
-                      // Navegar a la página ModificarDatosUsuario
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => ModificarDatosUsuario()),
@@ -86,7 +80,7 @@ class _PaginaInicioState extends State<PaginaInicio> {
                 ),
                 PopupMenuItem(
                   child: ListTile(
-                    leading: const Icon(Icons.logout), // Icono de cerrar sesión
+                    leading: const Icon(Icons.logout),
                     title: const Text('Cerrar Sesión'),
                     onTap: () {
                       Navigator.pushReplacement(
@@ -107,7 +101,7 @@ class _PaginaInicioState extends State<PaginaInicio> {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                SwipeCardPage(updateConversations, listaConversaciones), // Pass both callback function and listaConversaciones
+                SwipeCardPage(updateConversations, listaConversaciones),
               ],
             ),
           ),
@@ -151,7 +145,6 @@ class _PaginaInicioState extends State<PaginaInicio> {
   }
 }
 
-
 class SwipeCardPage extends StatefulWidget {
   final Function(String) updateConversations;
   final List<String> listaConversaciones;
@@ -166,17 +159,25 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
   List<Map<String, dynamic>> usersData = [];
   int currentPhotoIndex = 0;
   final User usuarioActual = FirebaseAuth.instance.currentUser!;
+  String? generoPreferencia;
 
   @override
   void initState() {
     super.initState();
-    // Load user data when widget is initialized
+    loadUserPreferences();
+  }
+
+  Future<void> loadUserPreferences() async {
+    DocumentSnapshot document = await FirebaseFirestore.instance.collection('usuarios').doc(usuarioActual.uid).get();
+    setState(() {
+      generoPreferencia = document['generoPreferencia'];
+    });
     loadUsers();
   }
 
   Future<void> loadUsers() async {
     CollectionReference users = FirebaseFirestore.instance.collection('usuarios');
-    QuerySnapshot querySnapshot = await users.get();
+    QuerySnapshot querySnapshot = await users.where('sexo', isEqualTo: generoPreferencia).get();
     querySnapshot.docs.forEach((doc) {
       if (doc.id != usuarioActual.uid) {
         usersData.add({
@@ -187,10 +188,7 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
       }
     });
 
-    // Mezclar la lista de usuarios para obtener un orden aleatorio
     usersData.shuffle(Random());
-
-    // Get users' photo URLs
     await getUsersPhotoUrls();
   }
 
@@ -225,12 +223,9 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
     String userName = usersData[currentPhotoIndex]['name'];
     if (!widget.listaConversaciones.contains(userName) && userName != usuarioActual.displayName) {
       widget.listaConversaciones.add(userName);
-
       await agregarCampoListaConversaciones(usuarioActual.uid, widget.listaConversaciones);
-
       widget.updateConversations(userName);
     }
-
     setState(() {
       currentPhotoIndex = (currentPhotoIndex + 1) % usersData.length;
     });
@@ -246,9 +241,9 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
               final sensitivity = 20.0;
               if (details.delta.dx.abs() > sensitivity) {
                 if (details.delta.dx > 0) {
-                  swipeRight(); // Swipe to the right
+                  swipeRight();
                 } else if (details.delta.dx < 0) {
-                  swipeLeft(); // Swipe to the left
+                  swipeLeft();
                 }
               }
             },
@@ -264,7 +259,7 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
                   width: double.infinity,
                   height: double.infinity,
                   child: usersData.isEmpty
-                      ? const Center(child: CircularProgressIndicator()) // Loading indicator while data is loading
+                      ? const Center(child: CircularProgressIndicator())
                       : Stack(
                           children: [
                             Image.network(

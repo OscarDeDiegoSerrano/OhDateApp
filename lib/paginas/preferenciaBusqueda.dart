@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ohdate_app/paginas/conversaciones.dart';
 import 'package:ohdate_app/paginas/inicio.dart';
 
@@ -9,6 +11,7 @@ class PreferenciaBusqueda extends StatefulWidget {
 
 class _PreferenciaBusquedaState extends State<PreferenciaBusqueda> {
   final _formKey = GlobalKey<FormState>();
+  User? usuarioActual = FirebaseAuth.instance.currentUser;
 
   String? generoSeleccionado;
   RangeValues rangoEdadSeleccionado = const RangeValues(18, 60);
@@ -26,10 +29,9 @@ class _PreferenciaBusquedaState extends State<PreferenciaBusqueda> {
         ),
         body: Stack(
           children: [
-            // Fondo
             Positioned.fill(
               child: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage("lib/imatges/fondo.jpg"),
                     fit: BoxFit.cover,
@@ -49,10 +51,10 @@ class _PreferenciaBusquedaState extends State<PreferenciaBusqueda> {
                         fit: BoxFit.contain,
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Container(
                       width: MediaQuery.of(context).size.width * 0.8,
-                      padding: EdgeInsets.all(20.0),
+                      padding: const EdgeInsets.all(20.0),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20.0),
@@ -61,7 +63,7 @@ class _PreferenciaBusquedaState extends State<PreferenciaBusqueda> {
                             color: Colors.black.withOpacity(0.3),
                             spreadRadius: 3,
                             blurRadius: 7,
-                            offset: Offset(0, 3),
+                            offset: const Offset(0, 3),
                           ),
                         ],
                       ),
@@ -70,7 +72,7 @@ class _PreferenciaBusquedaState extends State<PreferenciaBusqueda> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Text(
+                            const Text(
                               'Preferencias de Búsqueda',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -78,7 +80,7 @@ class _PreferenciaBusquedaState extends State<PreferenciaBusqueda> {
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            SizedBox(height: 20),
+                            const SizedBox(height: 20),
                             DropdownButtonFormField<String>(
                               value: generoSeleccionado,
                               onChanged: (newValue) {
@@ -131,10 +133,16 @@ class _PreferenciaBusquedaState extends State<PreferenciaBusqueda> {
                             ElevatedButton(
                               onPressed: () async {
                                 if (_formKey.currentState!.validate()) {
-                                  // Aquí puedes realizar la acción de guardar las preferencias de búsqueda
-                                  // por ejemplo, podrías guardar los valores en la base de datos
-                                  // o utilizarlos para filtrar resultados
-                                  // Aquí solo muestro un mensaje de éxito y retorno a la página de inicio
+                                  // Save preferences to the user's profile in Firebase
+                                  await FirebaseFirestore.instance
+                                      .collection('usuarios')
+                                      .doc(usuarioActual!.uid)
+                                      .update({
+                                    'generoPreferencia': generoSeleccionado,
+                                    'edadMinima': rangoEdadSeleccionado.start.round(),
+                                    'edadMaxima': rangoEdadSeleccionado.end.round(),
+                                  });
+
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(content: Text('Preferencias guardadas con éxito')),
                                   );
