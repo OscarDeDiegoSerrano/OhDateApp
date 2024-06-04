@@ -22,6 +22,8 @@ class _RegisterFormState extends State<RegisterForm> {
   TextEditingController emailController = TextEditingController();
   TextEditingController telefonoController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController alturaController = TextEditingController();
+
 
   ServicioAutenticacion serveiAuth = ServicioAutenticacion();
 
@@ -224,6 +226,18 @@ class _RegisterFormState extends State<RegisterForm> {
                               return null;
                             },
                           ),
+                          TextFormField(
+                            controller: alturaController,
+                            decoration: const InputDecoration(
+                              labelText: 'Altura',
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Por favor ingrese su correo altura';
+                              }
+                              return null;
+                            },
+                          ),
                           const SizedBox(height: 20),
                           DropdownButtonFormField<String>(
                             value: _selectedGender,
@@ -248,8 +262,7 @@ class _RegisterFormState extends State<RegisterForm> {
                           ElevatedButton(
                             onPressed: _triaImatge,
                             style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.all(10),
-                              primary: Color.fromARGB(255, 236, 144, 229),
+                              padding: const EdgeInsets.all(10), backgroundColor: const Color.fromARGB(255, 236, 144, 229),
                             ),
                             child: const Text("Tria imatge"),
                           ),
@@ -279,7 +292,8 @@ class _RegisterFormState extends State<RegisterForm> {
                                         nombreController.text,
                                         apellidoController.text,
                                         telefonoController.text,
-                                        _selectedGender!
+                                        _selectedGender!,
+                                        alturaController.text
                                       );
 
                                       if (result == null) {

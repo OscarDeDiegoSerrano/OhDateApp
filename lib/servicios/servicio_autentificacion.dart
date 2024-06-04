@@ -5,7 +5,7 @@ class ServicioAutenticacion {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<String?> registrarUsuario(String email, String password, String nombre, String apellido, String telefono, String sexo) async {
+  Future<String?> registrarUsuario(String email, String password, String nombre, String apellido, String telefono, String sexo, String altura) async {
     try {
       // Registro de usuario en Firebase Authentication
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
@@ -22,6 +22,7 @@ class ServicioAutenticacion {
         'telefono': telefono,
         'sexo': sexo, // Nuevo campo para guardar el sexo
         'listaConversaciones': [],
+        'altura': altura,
       });
       
       return null; // Registro exitoso
