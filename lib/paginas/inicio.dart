@@ -151,7 +151,6 @@ class _PaginaInicioState extends State<PaginaInicio> {
   }
 }
 
-
 class SwipeCardPage extends StatefulWidget {
   final Function(String) updateConversations;
   final List<String> listaConversaciones;
@@ -179,8 +178,11 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
     QuerySnapshot querySnapshot = await users.get();
     querySnapshot.docs.forEach((doc) {
       if (doc.id != usuarioActual.uid) {
+        // Verificar si el campo "altura" existe en el documento
+        String? altura = doc['altura'];
         usersData.add({
           'name': doc['nombre'] ?? '',
+          'height': altura != null ? altura : 'Altura no especificada',
           'photoUrl': '',
           'uid': doc.id,
         });
@@ -274,13 +276,25 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
                               height: double.infinity,
                             ),
                             Positioned(
-                              bottom: 10,
+                              bottom: 50,
                               left: 10,
                               child: Text(
                                 usersData[currentPhotoIndex]['name'],
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 25,
+                              left: 10,
+                              child: Text(
+                                'Altura: ${usersData[currentPhotoIndex]['height']}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),

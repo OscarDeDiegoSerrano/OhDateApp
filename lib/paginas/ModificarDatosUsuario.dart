@@ -14,6 +14,7 @@ class _ModificarDatosUsuarioState extends State
   TextEditingController _apellidoController = TextEditingController();
   TextEditingController _telefonoController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
+  TextEditingController _alturaController = TextEditingController();
 
   @override
   void initState() {
@@ -41,6 +42,8 @@ class _ModificarDatosUsuarioState extends State
       _apellidoController.text = datosUsuario['apellido'] ?? '';
       _telefonoController.text = datosUsuario['telefono'] ?? '';
       _emailController.text = datosUsuario['email'] ?? '';
+      _alturaController.text = datosUsuario['altura'] ?? '';
+
     } catch (error) {
       print('Error al cargar los datos del usuario: $error');
       // Manejar el error según sea necesario
@@ -158,6 +161,19 @@ class _ModificarDatosUsuarioState extends State
                                 },
                               ),
                               TextFormField(
+                                controller: _alturaController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Altura',
+                                  filled: true,
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Por favor ingrese su altura';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              TextFormField(
                                 controller: _emailController,
                                 decoration: const InputDecoration(
                                   labelText: 'Correo electrónico',
@@ -183,6 +199,7 @@ class _ModificarDatosUsuarioState extends State
                               String apellido = _apellidoController.text;
                               String telefono = _telefonoController.text;
                               String email = _emailController.text;
+                              String altura = _alturaController.text;
 
                               String idUsuarioActual = ServicioAutenticacion().getUsuariActual()!.uid;
 
@@ -195,6 +212,7 @@ class _ModificarDatosUsuarioState extends State
                                 'apellido': apellido,
                                 'telefono': telefono,
                                 'email': email,
+                                'altura': altura,
                               }).then((_) {
                                 // Si la actualización es correcta, muestra un mensaje
                                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
