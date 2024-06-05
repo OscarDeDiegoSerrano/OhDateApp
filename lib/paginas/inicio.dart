@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:ohdate_app/paginas/ModificarDatosUsuario.dart';
-import 'package:ohdate_app/paginas/conversaciones.dart';
-import 'package:ohdate_app/paginas/login.dart';
-import 'package:ohdate_app/paginas/preferenciaBusqueda.dart';
+import 'package:ohdate_app/paginas/ModificarDatosUsuario.dart'; // Asegúrate de que este archivo exista
+import 'package:ohdate_app/paginas/conversaciones.dart'; // Asegúrate de que este archivo exista
+import 'package:ohdate_app/paginas/login.dart'; // Asegúrate de que este archivo exista
+import 'package:ohdate_app/paginas/preferenciaBusqueda.dart'; // Asegúrate de que este archivo exista
 
 class PaginaInicio extends StatefulWidget {
   @override
@@ -224,19 +224,52 @@ class _SwipeCardPageState extends State<SwipeCardPage> {
   }
 
   void swipeRight() async {
-    String userName = usersData[currentPhotoIndex]['name'];
-    if (!widget.listaConversaciones.contains(userName) && userName != usuarioActual.displayName) {
-      widget.listaConversaciones.add(userName);
+  String userName = usersData[currentPhotoIndex]['name'];
+  if (!widget.listaConversaciones.contains(userName)) {
+    widget.listaConversaciones.add(userName);
 
-      await agregarCampoListaConversaciones(usuarioActual.uid, widget.listaConversaciones);
+    await agregarCampoListaConversaciones(usuarioActual.uid, widget.listaConversaciones);
 
+    // Verificar si la persona actual también le ha dado like a la persona
+    // que le ha dado like.
+    DocumentSnapshot otherUserSnapshot = await FirebaseFirestore.instance
+        .collection('usuarios')
+        .doc(usersData[currentPhotoIndex]['uid'])
+        .get();
+      List<String> otherUserMatches = List<String>.from(otherUserSnapshot['listaConversaciones'] ?? []);
+      print(otherUserMatches);
+      print(usuarioActual.uid);
+
+    DocumentSnapshot name = await FirebaseFirestore.instance
+        .collection('usuarios').doc(usuarioActual.uid).get();
+    if (otherUserMatches.contains(name['nombre'])) {
+      // Si hay un match, mostrar la notificación
       widget.updateConversations(userName);
+      showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text("¡Es un match!"),
+        content: Text("Has hecho match con $userName."),
+        actions: [
+          TextButton(
+            child: Text("OK"),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
     }
-
-    setState(() {
-      currentPhotoIndex = (currentPhotoIndex + 1) % usersData.length;
-    });
   }
+
+  setState(() {
+    currentPhotoIndex = (currentPhotoIndex + 1) % usersData.length;
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
